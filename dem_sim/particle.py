@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Particle:
-    GRAVITY = np.array([0, -9.81, 0])
+    gravity = np.array([0, -9.81, 0])
     pos = [0, 0, 0]
     next_pos = [0, 0, 0]
     vel = [0, 0, 0]
@@ -11,14 +11,21 @@ class Particle:
     fluid_viscosity = 0
     density = 0
 
-    def __init__(self, position, velocity, diameter=0.001, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None):
+    def __init__(self, position, velocity, diameter=0.001, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None,
+                 gravity=None):
+
+        # To avoid mutable arguments.
+        if gravity is None:
+            gravity = [0, -9.81, 0]
+
         self.pos = np.array(position)
-        self.vel = velocity
+        self.vel = np.array(velocity)
         self.diameter = diameter
         self.density = density
         self.fluid_viscosity = fluid_viscosity
+        self.gravity = np.array(gravity)
 
-        if callable(get_vel_fluid) and len(get_vel_fluid(self.pos)) == 3:
+        if callable(get_vel_fluid) and len(get_vel_fluid(self)) == 3:
             self.get_vel_fluid = get_vel_fluid
         elif get_vel_fluid is not None:
             print("get_vel_fluid is not a valid function.")
@@ -38,10 +45,10 @@ class Particle:
         self.next_pos = self.pos + delta_t * (self.next_vel + self.vel) / 2
 
     def get_accel(self):
-        return np.array(self.get_drag_accel() + self.get_DEM_accel() + self.GRAVITY)
+        return np.array(self.get_drag_accel() + self.get_DEM_accel() + self.gravity)
 
     def get_drag_accel(self):
-        return -(self.vel - np.array(self.get_vel_fluid())) / self.get_tau()
+        return -(self.vel - np.array(self.get_vel_fluid(self))) / self.get_tau()
 
     def get_DEM_accel(self):
         return 0
