@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from dem_sim.particle import Particle
+from dem_sim.objects.particle import Particle
 
 
 class TestParticle(TestCase):

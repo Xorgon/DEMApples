@@ -2,14 +2,19 @@ import numpy as np
 
 
 class Particle:
-    gravity = np.array([0, -9.81, 0])
-    pos = [0, 0, 0]
-    next_pos = [0, 0, 0]
-    vel = [0, 0, 0]
-    next_vel = [0, 0, 0]
-    diameter = 0
-    fluid_viscosity = 0
-    density = 0
+    gravity = None
+    pos = None
+    next_pos = None
+    vel = None
+    next_vel = None
+    diameter = None
+    fluid_viscosity = None
+    density = None
+
+    time = 0
+    times = None
+    pos_history = None
+    vel_history = None
 
     def __init__(self, position, velocity, diameter=0.001, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None,
                  gravity=None):
@@ -25,18 +30,27 @@ class Particle:
         self.fluid_viscosity = fluid_viscosity
         self.gravity = np.array(gravity)
 
+        self.times = []
+        self.pos_history = []
+        self.vel_history = []
+
+        self.record_state()
+
         if callable(get_vel_fluid) and len(get_vel_fluid(self)) == 3:
             self.get_vel_fluid = get_vel_fluid
         elif get_vel_fluid is not None:
             print("get_vel_fluid is not a valid function.")
 
     def iterate(self, delta_t):
+        self.time += delta_t
         self.get_accel()
         self.iterate_velocity(delta_t)
         self.iterate_position(delta_t)
 
         self.vel = self.next_vel
         self.pos = self.next_pos
+
+        self.record_state()
 
     def iterate_velocity(self, delta_t):
         self.next_vel = self.vel + delta_t * self.get_accel()
@@ -58,3 +72,9 @@ class Particle:
 
     def get_vel_fluid(self):
         return [0, 0, 0]
+
+    def record_state(self):
+        """ Records current position, velocity, and time. """
+        self.vel_history.append(self.vel.copy())
+        self.pos_history.append(self.pos.copy())
+        self.times.append(self.time)

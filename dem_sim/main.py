@@ -1,11 +1,11 @@
 import math
+from random import random
+
+import matplotlib.pyplot as plt
 import numpy as np
 
-from dem_sim.particle import Particle
 import dem_sim
-from random import random
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+from dem_sim.objects.particle import Particle
 
 
 def taylor_green_vortex(x, y, z):
@@ -38,7 +38,7 @@ def taylor_green_vortex_sim():
 
         return taylor_green_vortex(x, y, z)
 
-    histories = []
+    particles = []
     for i in range(50):
         # Generate random start points.
         x_start = (2 * random() - 1) * math.pi
@@ -57,16 +57,19 @@ def taylor_green_vortex_sim():
             particle_pos.append(p.pos)
             last_time = time
 
-        particle_pos = np.array(particle_pos)
-        histories.append(particle_pos)
+        particles.append(p)
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
-    for particle_pos in histories:
-        ax.plot(particle_pos[:, 0], particle_pos[:, 1], particle_pos[:, 2], color="r")
+    for particle in particles:
+        particle.pos_history = np.array(particle.pos_history)
+        ax.plot(particle.pos_history[:, 0], particle.pos_history[:, 1], particle.pos_history[:, 2], color="r")
     plt.show()
+
+    return particles
 
 
 dem_sim.util.flow_plot.flow_plot(taylor_green_vortex)
-taylor_green_vortex_sim()
+particles = taylor_green_vortex_sim()
+dem_sim.animation.animate_particles(particles)
