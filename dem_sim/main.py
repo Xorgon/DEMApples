@@ -30,7 +30,7 @@ def taylor_green_vortex(x, y, z):
     return np.array([u, v, w])
 
 
-def taylor_green_vortex_sim():
+def taylor_green_vortex_sim(number_of_particles=50):
     def get_vel_fluid(self):
         x = self.pos[0]
         y = self.pos[1]
@@ -39,7 +39,7 @@ def taylor_green_vortex_sim():
         return taylor_green_vortex(x, y, z)
 
     particles = []
-    for i in range(50):
+    for i in range(number_of_particles):
         # Generate random start points.
         x_start = (2 * random() - 1) * math.pi
         y_start = (2 * random() - 1) * math.pi
@@ -70,6 +70,6 @@ def taylor_green_vortex_sim():
     return particles
 
 
-dem_sim.util.flow_plot.flow_plot(taylor_green_vortex)
-particles = taylor_green_vortex_sim()
-dem_sim.animation.animate_particles(particles)
+# dem_sim.util.flow_plot.flow_plot(taylor_green_vortex)
+particles = taylor_green_vortex_sim(500)
+dem_sim.util.animation.animate_particles(particles, speed=1)

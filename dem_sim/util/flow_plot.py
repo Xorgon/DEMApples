@@ -4,13 +4,13 @@ import math
 import numpy as np
 
 
-def flow_plot(flow_vel_func, min=-math.pi, max=math.pi, step=0.5):
+def flow_plot(flow_vel_func, b_min=-math.pi, b_max=math.pi, step=0.5, ):
     """
     Plots the flow for a given flow velocity function.
 
     :param flow_vel_func: A function that takes three numbers x,y,z and returns a numpy array of length 3.
-    :param min: Minimum boundary. Default: -pi
-    :param max: Maximum boundary. Default: pi
+    :param b_min: Minimum boundary. Default: -pi
+    :param b_max: Maximum boundary. Default: pi
     :param step: Distance between points: 0.5.
     """
 
@@ -19,9 +19,9 @@ def flow_plot(flow_vel_func, min=-math.pi, max=math.pi, step=0.5):
 
     positions = []
     velocities = []
-    for x in np.arange(min, max, step):
-        for y in np.arange(min, max, step):
-            for z in np.arange(min, max, step):
+    for x in np.arange(b_min, b_max, step):
+        for y in np.arange(b_min, b_max, step):
+            for z in np.arange(b_min, b_max, step):
                 positions.append(np.array([x, y, z]))
                 velocities.append(flow_vel_func(x, y, z))
 
