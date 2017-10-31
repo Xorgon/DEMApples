@@ -46,24 +46,12 @@ def taylor_green_vortex_sim(number_of_particles=50):
 
         p = Particle([x_start, y_start, z_start], [0, 0, 0], gravity=[0, -0.001, 0], get_vel_fluid=get_vel_fluid)
 
-        particle_pos = []
-
-        last_time = 0
-
-        for t in range(500):
-            time = t / 10
-            p.iterate(time - last_time)
-            particle_pos.append(p.pos)
-            last_time = time
-
         particles.append(p)
 
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-
-    for particle in particles:
-        particle.pos_history = np.array(particle.pos_history)
-        ax.plot(particle.pos_history[:, 0], particle.pos_history[:, 1], particle.pos_history[:, 2], color="r")
-    plt.show()
+    last_time = 0
+    for t in range(500):
+        time = t / 10
+        [p.iterate(time - last_time) for p in particles]
+        last_time = time
 
     return particles

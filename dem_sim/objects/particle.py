@@ -40,6 +40,8 @@ class Particle:
             self.get_vel_fluid = get_vel_fluid
         elif get_vel_fluid is not None:
             print("get_vel_fluid is not a valid function.")
+        else:
+            self.get_vel_fluid = lambda dummy: [0, 0, 0]
 
     def iterate(self, delta_t):
         self.time += delta_t
@@ -69,9 +71,6 @@ class Particle:
 
     def get_tau(self):
         return self.density * self.diameter ** 2 / (18 * self.fluid_viscosity)
-
-    def get_vel_fluid(self):
-        return [0, 0, 0]
 
     def record_state(self):
         """ Records current position, velocity, and time. """
