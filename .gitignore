@@ -54,3 +54,6 @@ manifest.mf
 # Cached files
 __pycache__*
 *.pyc
+
+# Run files
+run/*

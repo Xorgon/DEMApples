@@ -34,8 +34,6 @@ class Particle:
         self.pos_history = []
         self.vel_history = []
 
-        self.record_state()
-
         if callable(get_vel_fluid) and len(get_vel_fluid(self)) == 3:
             self.get_vel_fluid = get_vel_fluid
         elif get_vel_fluid is not None:
@@ -71,6 +69,19 @@ class Particle:
 
     def get_tau(self):
         return self.density * self.diameter ** 2 / (18 * self.fluid_viscosity)
+
+    def get_speed(self):
+        return np.linalg.norm(self.vel)
+
+    def get_speed_at_time(self, time):
+        try:
+            index = self.times.index(time)
+            return np.linalg.norm(self.vel_history[index])
+        except ValueError:
+            return 0
+
+    def get_speed_at_index(self, index):
+        return np.linalg.norm(self.vel_history[index])
 
     def record_state(self):
         """ Records current position, velocity, and time. """
