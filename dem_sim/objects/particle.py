@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 
 class Particle:
@@ -11,10 +12,12 @@ class Particle:
     fluid_viscosity = None
     density = None
 
-    time = 0
+    time = None
     times = None
     pos_history = None
     vel_history = None
+
+    dem_forces = None
 
     def __init__(self, position, velocity, diameter=0.001, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None,
                  gravity=None):
@@ -30,9 +33,12 @@ class Particle:
         self.fluid_viscosity = fluid_viscosity
         self.gravity = np.array(gravity)
 
+        self.time = 0
         self.times = []
         self.pos_history = []
         self.vel_history = []
+
+        self.dem_forces = []
 
         if callable(get_vel_fluid) and len(get_vel_fluid(self)) == 3:
             self.get_vel_fluid = get_vel_fluid
@@ -43,7 +49,6 @@ class Particle:
 
     def iterate(self, delta_t):
         self.time += delta_t
-        self.get_accel()
         self.iterate_velocity(delta_t)
         self.iterate_position(delta_t)
 
@@ -51,6 +56,7 @@ class Particle:
         self.pos = self.next_pos
 
         self.record_state()
+        self.dem_forces.clear()
 
     def iterate_velocity(self, delta_t):
         self.next_vel = self.vel + delta_t * self.get_accel()
@@ -59,13 +65,14 @@ class Particle:
         self.next_pos = self.pos + delta_t * (self.next_vel + self.vel) / 2
 
     def get_accel(self):
-        return np.array(self.get_drag_accel() + self.get_DEM_accel() + self.gravity)
+        return np.array(self.get_drag_accel() + self.get_dem_accel() + self.gravity)
 
     def get_drag_accel(self):
         return -(self.vel - np.array(self.get_vel_fluid(self))) / self.get_tau()
 
-    def get_DEM_accel(self):
-        return 0
+    def get_dem_accel(self):
+        total_dem_force = np.sum(self.dem_forces, 0)
+        return total_dem_force / self.get_mass()
 
     def get_tau(self):
         return self.density * self.diameter ** 2 / (18 * self.fluid_viscosity)
@@ -82,6 +89,9 @@ class Particle:
 
     def get_speed_at_index(self, index):
         return np.linalg.norm(self.vel_history[index])
+
+    def get_mass(self):
+        return self.density * math.pi * self.diameter ** 3 / 6
 
     def record_state(self):
         """ Records current position, velocity, and time. """
