@@ -41,7 +41,7 @@ def particles_to_binary(particles, filename_root, path="", ignore_warnings=False
     times = particles[0].times
     for i in range(len(times)):
         millis = int(times[i] * 1000)
-        file = open(path + filename_root + "_" + str(millis) + ".raw", 'a')
+        file = open(path + filename_root + "_" + str(millis) + ".raw", 'w')
         for p in particles:
             # TODO: Make this actually do binary output and test with ParaView.
             file.write("{0}{1}{2}{3}".format(num_utils.float_to_bin(p.pos_history[i][0]),
@@ -83,7 +83,7 @@ def particles_to_paraview(particles, filename_root, path="", ignore_warnings=Fal
     times = particles[0].times
     for i in range(len(times)):
         millis = int(times[i] * 1000)
-        file = open(path + filename_root + "_" + str(millis) + ".txt", 'a')
+        file = open(path + filename_root + "_" + str(millis) + ".txt", 'w')
         for p in particles:
             file.write("{0:.5f},{1:.5f},{2:.5f},{3:.5f}\n".format(p.pos_history[i][0], p.pos_history[i][1],
                                                                   p.pos_history[i][2],
