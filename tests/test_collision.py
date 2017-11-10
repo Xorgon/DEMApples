@@ -44,6 +44,7 @@ class TestCollision(TestCase):
             last_time = time
 
         print("Final offset = {0}".format(p1.pos[1]))
+        # TODO: Check offset against calculated value.
         particles_to_paraview([p1, p2], "bounce_col", "bounce_collision/")
 
     def test_offset_bouncing_collision(self):
@@ -82,4 +83,5 @@ class TestCollision(TestCase):
             p.iterate(time - last_time)
             last_time = time
         print("Final offset = {0}".format(p.pos[1]))
+        # TODO: Check offset against calculated value.
         particles_to_paraview([p], "wall_bounce_col", "wall_bounce_collision/")

@@ -45,6 +45,8 @@ class Collision:
     def get_particle_overlap(self):
         return self.p1.diameter / 2 + self.p2.diameter / 2 - self.get_particle_centre_separation()
 
+    # TODO: Add collision tangential force.
+
     def calculate_collision_normal_force(self):
         force = self.stiffness * self.get_particle_overlap() * self.get_collision_normal() \
                 - self.damping_coefficient * self.get_normal_velocity()
@@ -99,6 +101,8 @@ class AAWallCollision:
         tang_dif_max = dif_max - dif_max * self.wall.normal
         tang_dif_min = dif_min - dif_min * self.wall.normal
         return all(tang_dif_max >= 0) and all(tang_dif_min >= 0)
+
+    # TODO: Add collision tangential force.
 
     def calculate_collision_normal_force(self):
         force = self.stiffness * self.get_overlap() * self.get_collision_normal() \

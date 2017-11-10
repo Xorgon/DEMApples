@@ -21,3 +21,5 @@ class AAWall:
             self.min = np.minimum(pos2, pos2)
         else:
             raise ParameterException("Points not in the same axis-aligned plane.")
+
+# TODO: Add periodic wall.
