@@ -1,5 +1,5 @@
 from unittest import TestCase
-from dem_sim.objects.collision import Collision
+from dem_sim.objects.collision import *
 from dem_sim.objects.particle import Particle
 from dem_sim.util.file_io import particles_to_paraview
 import numpy as np
@@ -43,7 +43,7 @@ class TestCollision(TestCase):
             p2.iterate(time - last_time)
             last_time = time
 
-        TestCase.assertLess(self, p1.get_speed(), 1e-4)
+        print("Final offset = {0}".format(p1.pos[1]))
         particles_to_paraview([p1, p2], "bounce_col", "bounce_collision/")
 
     def test_offset_bouncing_collision(self):
@@ -69,3 +69,17 @@ class TestCollision(TestCase):
 
         ps.append(p_fixed)
         particles_to_paraview(ps, "offset_bounce_col", "offset_bounce_collision/")
+
+    def test_wall_bouncing(self):
+        p = Particle([0, 0.5, 0], [0, 0, 0], 0.1)
+        w = AAWall([1, 0, 1], [-1, 0, -1])
+        col = AAWallCollision(p, w, 1e5, restitution=0.8)
+        timestep = 0.0005
+
+        last_time = 0
+        for time in np.arange(0, 10, timestep):
+            col.calculate()
+            p.iterate(time - last_time)
+            last_time = time
+        print("Final offset = {0}".format(p.pos[1]))
+        particles_to_paraview([p], "wall_bounce_col", "wall_bounce_collision/")
