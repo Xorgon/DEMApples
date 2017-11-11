@@ -33,7 +33,7 @@ class TestCollision(TestCase):
     def test_bouncing_collision(self):
         p1 = Particle([0, 0.5, 0], [0, 0, 0], 0.1)
         p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e10, gravity=[0, 0, 0])
-        col = Collision(p1, p2, 1e5, restitution=0.8)
+        col = Collision(p1, p2, 1e99, restitution=0.8)
         timestep = 0.0005
 
         last_time = 0
@@ -56,7 +56,7 @@ class TestCollision(TestCase):
         p_fixed = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e10, gravity=[0, 0, 0])
         cols = []
         for p in ps:
-            cols.append(Collision(p, p_fixed, 1e5, restitution=0.8))
+            cols.append(Collision(p, p_fixed, 1e99, restitution=0.8))
         timestep = 0.0005
 
         last_time = 0
@@ -85,3 +85,55 @@ class TestCollision(TestCase):
         print("Final offset = {0}".format(p.pos[1]))
         # TODO: Check offset against calculated value.
         particles_to_paraview([p], "wall_bounce_col", "wall_bounce_collision/")
+
+    def test_friction_slide(self):
+        p1 = Particle([0.001, 0.1, 0], [0, 0, 0], 0.1)
+        p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        col = Collision(p1, p2, 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5)
+        timestep = 0.0005
+
+        last_time = 0
+        for time in np.arange(0, 10, timestep):
+            col.calculate(time)
+            p1.iterate(time - last_time)
+            p2.iterate(time - last_time)
+            last_time = time
+
+        particles_to_paraview([p1, p2], "friction_slide", "friction_slide/")
+
+    def test_no_friction_slide(self):
+        p1 = Particle([0.001, 0.1, 0], [0, 0, 0], 0.1)
+        p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        col = Collision(p1, p2, 1e5, restitution=0.8)
+        timestep = 0.0005
+
+        last_time = 0
+        for time in np.arange(0, 10, timestep):
+            col.calculate(time)
+            p1.iterate(time - last_time)
+            p2.iterate(time - last_time)
+            last_time = time
+
+        particles_to_paraview([p1, p2], "no_friction_slide", "no_friction_slide/")
+
+    def test_friction_comparison(self):
+        fp1 = Particle([0.001, 0.1, -0.25], [0, 0, 0], 0.1)
+        fp2 = Particle([0, 0, -0.25], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        fcol = Collision(fp1, fp2, 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5)
+
+        nfp1 = Particle([0.001, 0.1, 0.25], [0, 0, 0], 0.1)
+        nfp2 = Particle([0, 0, 0.25], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        nfcol = Collision(nfp1, nfp2, 1e5, restitution=0.8)
+        timestep = 0.0005
+
+        last_time = 0
+        for time in np.arange(0, 10, timestep):
+            fcol.calculate(time)
+            nfcol.calculate(time)
+            fp1.iterate(time - last_time)
+            fp2.iterate(time - last_time)
+            nfp1.iterate(time - last_time)
+            nfp2.iterate(time - last_time)
+            last_time = time
+
+        particles_to_paraview([fp1, fp2, nfp1, nfp2], "friction_comp", "friction_comparison/")
