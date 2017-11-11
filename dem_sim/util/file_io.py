@@ -82,6 +82,7 @@ def particles_to_paraview(particles, filename_root, path="", ignore_warnings=Fal
 
     times = particles[0].times
     for i in range(len(times)):
+        # TODO: Skip some log files.
         millis = int(times[i] * 1000)
         file = open(path + filename_root + "_" + str(millis) + ".txt", 'w')
         for p in particles:

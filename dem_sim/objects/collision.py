@@ -56,9 +56,6 @@ class Collision:
     def get_particle_centre_separation(self):
         return np.linalg.norm(self.p2.pos - self.p1.pos)
 
-    def get_particle_overlap(self):
-        return self.p1.diameter / 2 + self.p2.diameter / 2 - self.get_particle_centre_separation()
-
     def get_collision_tangent(self):
         vel_relative = self.get_relative_velocity()
         return normalize(vel_relative - self.get_normal_velocity())
@@ -80,6 +77,9 @@ class Collision:
         force = self.stiffness * self.get_particle_overlap() * self.get_collision_normal() \
                 - self.damping_coefficient * self.get_normal_velocity()
         return force
+
+    def get_particle_overlap(self):
+        return self.p1.diameter / 2 + self.p2.diameter / 2 - self.get_particle_centre_separation()
 
     def calculate(self, time):
         self.time_history.append(time)
@@ -106,17 +106,28 @@ class AAWallCollision:
     wall = None
     stiffness = None
     damping_coefficient = None
+    friction_coefficient = None
+    friction_stiffness = None
 
-    def __init__(self, particle, wall, stiffness=1, damping_coefficient=None, restitution=None):
+    pos_history = []
+    vel_history = []
+    time_history = []
+
+    def __init__(self, particle, wall, stiffness=1, damping_coefficient=None, restitution=None,
+                 friction_coefficient=None, friction_stiffness=None):
         self.p = particle
         self.wall = wall
         self.stiffness = stiffness
+
         if damping_coefficient is None and restitution is not None:
             self.damping_coefficient = self.calculate_damping_coefficient(restitution)
         elif damping_coefficient is None:
             self.damping_coefficient = 1
         else:
             self.damping_coefficient = damping_coefficient
+
+        self.friction_coefficient = friction_coefficient
+        self.friction_stiffness = friction_stiffness
 
     def calculate_damping_coefficient(self, restitution):
         ln_rest = math.log(restitution)
@@ -132,6 +143,27 @@ class AAWallCollision:
     def get_particle_centre_distance(self):
         return np.abs(np.dot(self.wall.max - self.p.pos, self.wall.normal))
 
+    def get_collision_tangent(self):
+        return normalize(self.p.vel - self.get_normal_velocity())
+
+    def get_tangential_displacement(self):
+        # TODO: Investigate more accurate methods of numerically integrating this.
+        delta_t = self.time_history[-1] - self.time_history[-2]
+        return np.linalg.norm(self.vel_history[-1] * delta_t)
+
+    def calculate_tangential_friction_force(self, normal_force):
+        f_dyn = - self.friction_coefficient * np.linalg.norm(normal_force) * self.get_collision_tangent()
+        f_static = - self.friction_stiffness * self.get_tangential_displacement() * self.get_collision_tangent()
+        if np.linalg.norm(f_dyn) < np.linalg.norm(f_static):
+            return f_dyn
+        else:
+            return f_static
+
+    def calculate_collision_normal_force(self):
+        force = self.stiffness * self.get_overlap() * self.get_collision_normal() \
+                - self.damping_coefficient * self.get_normal_velocity()
+        return force
+
     def get_overlap(self):
         return self.p.diameter / 2 - self.get_particle_centre_distance()
 
@@ -144,13 +176,20 @@ class AAWallCollision:
         tang_dif_min = dif_min - dif_min * self.wall.normal
         return all(tang_dif_max >= 0) and all(tang_dif_min >= 0)
 
-    # TODO: Add collision tangential force.
-
-    def calculate_collision_normal_force(self):
-        force = self.stiffness * self.get_overlap() * self.get_collision_normal() \
-                - self.damping_coefficient * self.get_normal_velocity()
-        self.p.dem_forces.append(force)
-
-    def calculate(self):
+    def calculate(self, time):
         if self.get_overlap() > 0 and self.is_in_wall_bounds():
             self.calculate_collision_normal_force()
+        self.time_history.append(time)
+        self.vel_history.append(self.p.vel)
+        self.pos_history.append(self.p.pos)
+
+        if self.get_overlap() > 0 and self.is_in_wall_bounds():
+            force = self.calculate_collision_normal_force()
+            self.p.dem_forces.append(force)
+
+            if self.friction_stiffness is not None \
+                    and self.friction_coefficient is not None \
+                    and len(self.time_history) > 1 \
+                    and np.linalg.norm(self.p.vel) != 0:
+                friction = self.calculate_tangential_friction_force(force)
+                self.p.dem_forces.append(friction)

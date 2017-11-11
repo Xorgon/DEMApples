@@ -137,3 +137,23 @@ class TestCollision(TestCase):
             last_time = time
 
         particles_to_paraview([fp1, fp2, nfp1, nfp2], "friction_comp", "friction_comparison/")
+
+    def test_wall_friction_comparison(self):
+        wall = AAWall([1, 0, 1], [-1, 0, -1])
+
+        fp = Particle([0, 0.05, -0.25], [1, 0, 0], 0.1)
+        fcol = AAWallCollision(fp, wall, 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5)
+
+        nfp = Particle([0.001, 0.05, 0.25], [1, 0, 0], 0.1)
+        nfcol = AAWallCollision(nfp, wall, 1e5, restitution=0.8)
+        timestep = 0.0005
+
+        last_time = 0
+        for time in np.arange(0, 10, timestep):
+            fcol.calculate(time)
+            nfcol.calculate(time)
+            fp.iterate(time - last_time)
+            nfp.iterate(time - last_time)
+            last_time = time
+
+        particles_to_paraview([fp, nfp], "wall_friction_comp", "wall_friction_comparison/")
