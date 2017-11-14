@@ -47,9 +47,10 @@ class Particle:
         else:
             self.get_vel_fluid = lambda dummy: [0, 0, 0]
 
-    def iterate(self, delta_t):
+    def iterate(self, delta_t, implicit=False):
         self.time += delta_t
-        self.iterate_velocity(delta_t)
+
+        self.iterate_velocity(delta_t, implicit)
         self.iterate_position(delta_t)
 
         self.vel = self.next_vel
@@ -58,14 +59,22 @@ class Particle:
         self.record_state()
         self.dem_forces.clear()
 
-    def iterate_velocity(self, delta_t):
-        self.next_vel = self.vel + delta_t * self.get_accel()
+    def iterate_velocity(self, delta_t, implicit=False):
+        self.next_vel = self.vel + delta_t * self.get_accel(delta_t, implicit)
 
     def iterate_position(self, delta_t):
         self.next_pos = self.pos + delta_t * (self.next_vel + self.vel) / 2
 
-    def get_accel(self):
-        return np.array(self.get_drag_accel() + self.get_dem_accel() + self.gravity)
+    def get_accel(self, delta_t, implicit=False):
+        if not implicit:
+            return np.array(self.get_drag_accel() + self.get_dem_accel() + self.gravity)
+        else:
+            return self.get_accel_implicit_drag(delta_t)
+
+    def get_accel_implicit_drag(self, delta_t):
+        non_drag_a = self.get_dem_accel() + self.gravity
+        v = self.get_vel_fluid(self)
+        return (v - self.vel + self.get_tau() * non_drag_a) / (self.get_tau() + delta_t)
 
     def get_drag_accel(self):
         return -(self.vel - np.array(self.get_vel_fluid(self))) / self.get_tau()
@@ -73,6 +82,8 @@ class Particle:
     def get_dem_accel(self):
         total_dem_force = np.sum(self.dem_forces, 0)
         return total_dem_force / self.get_mass()
+
+    # Useful values.
 
     def get_tau(self):
         return self.density * self.diameter ** 2 / (18 * self.fluid_viscosity)
