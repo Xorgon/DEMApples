@@ -19,3 +19,15 @@ alt="Video" width="240" height="180" border="10" /></a>
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=DY6Qm5V3CEc
 " target="_blank"><img src="http://img.youtube.com/vi/DY6Qm5V3CEc/0.jpg" 
 alt="Video" width="240" height="180" border="10" /></a>
+
+#### Particles with and without friction sliding off of other particles (with comparatively infinite density and no gravity).
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=K2a_b730ybs
+" target="_blank"><img src="http://img.youtube.com/vi/K2a_b730ybs/0.jpg" 
+alt="Video" width="240" height="180" border="10" /></a>
+
+#### Particles with and without friction sliding along a fixed wall from a starting velocity.
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=MfTgXSuEfgA
+" target="_blank"><img src="http://img.youtube.com/vi/MfTgXSuEfgA/0.jpg" 
+alt="Video" width="240" height="180" border="10" /></a>
