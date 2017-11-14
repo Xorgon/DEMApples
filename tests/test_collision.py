@@ -3,6 +3,7 @@ from dem_sim.objects.collision import *
 from dem_sim.objects.particle import Particle
 from dem_sim.util.file_io import particles_to_paraview
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class TestCollision(TestCase):
@@ -23,29 +24,60 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            col.calculate()
+            col.calculate(time)
             p1.iterate(time - last_time)
             p2.iterate(time - last_time)
             last_time = time
 
-        particles_to_paraview([p1, p2], "simple_col", "simple_collision/")
+        particles_to_paraview([p1, p2], "simple_col", "../run/simple_collision/")
 
     def test_bouncing_collision(self):
         p1 = Particle([0, 0.5, 0], [0, 0, 0], 0.1)
-        p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e10, gravity=[0, 0, 0])
-        col = Collision(p1, p2, 1e99, restitution=0.8)
+        p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        col = Collision(p1, p2, 1e5, restitution=0.8)
         timestep = 0.0005
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            col.calculate()
+            col.calculate(time)
             p1.iterate(time - last_time)
             p2.iterate(time - last_time)
             last_time = time
 
-        print("Final offset = {0}".format(p1.pos[1]))
-        # TODO: Check offset against calculated value.
-        particles_to_paraview([p1, p2], "bounce_col", "bounce_collision/")
+        predicted_overlap = p1.get_mass() * np.linalg.norm(p1.gravity) / col.stiffness
+        print("Predicted overlap = {0}".format(predicted_overlap))
+        print("Calculated overlap = {0}".format(col.get_particle_overlap()))
+        print("Percentage difference = {0}".format(100 * predicted_overlap / col.get_particle_overlap() - 100))
+        TestCase.assertAlmostEqual(self, predicted_overlap, col.get_particle_overlap())
+        particles_to_paraview([p1, p2], "bounce_col", "../run/bounce_collision/")
+
+    def test_bouncing_collision_timesteps(self):
+        p1 = Particle([0, 0.5, 0], [0, 0, 0], 0.1)
+        p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        col = Collision(p1, p2, 1e5, restitution=0.8)
+
+        timesteps = np.arange(0.0005, 0.001, 0.00001)
+        overlap_errors = []
+        for timestep in timesteps:
+            print(timestep)
+            last_time = 0
+            for time in np.arange(0, 10, timestep):
+                col.calculate(time)
+                p1.iterate(time - last_time)
+                p2.iterate(time - last_time)
+                last_time = time
+
+            predicted_overlap = p1.get_mass() * np.linalg.norm(p1.gravity) / col.stiffness
+            percent_dif = 100 * np.abs(col.get_particle_overlap() / predicted_overlap) - 100
+            overlap_errors.append(percent_dif)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_title('Percentage error against timestep')
+        ax.set_ylabel('Percentage error (%)')
+        ax.set_xlabel('Timestep (seconds)')
+        ax.plot(timesteps, overlap_errors)
+        plt.show()
 
     def test_offset_bouncing_collision(self):
         ps = []
@@ -53,23 +85,27 @@ class TestCollision(TestCase):
         for y in np.arange(0, 5, 0.5):
             ps.append(Particle([coeff * 0.025, y + 0.5, 0], [0, 0, 0], 0.1))
             coeff *= -1
-        p_fixed = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e10, gravity=[0, 0, 0])
+        p_fixed = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
         cols = []
         for p in ps:
-            cols.append(Collision(p, p_fixed, 1e99, restitution=0.8))
+            cols.append(Collision(p, p_fixed, 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5))
+        for i in range(len(ps)):
+            for j in range(i + 1, len(ps)):
+                cols.append(
+                    Collision(ps[i], ps[j], 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5))
         timestep = 0.0005
 
         last_time = 0
-        for time in np.arange(0, 10, timestep):
+        for time in np.arange(0, 3, timestep):
             for col in cols:
-                col.calculate()
+                col.calculate(time)
             for p in ps:
                 p.iterate(time - last_time)
             p_fixed.iterate(time - last_time)
             last_time = time
 
         ps.append(p_fixed)
-        particles_to_paraview(ps, "offset_bounce_col", "offset_bounce_collision/")
+        particles_to_paraview(ps, "offset_bounce_col", "../run/offset_bounce_collision/")
 
     def test_wall_bouncing(self):
         p = Particle([0, 0.5, 0], [0, 0, 0], 0.1)
@@ -79,12 +115,12 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            col.calculate()
+            col.calculate(time)
             p.iterate(time - last_time)
             last_time = time
         print("Final offset = {0}".format(p.pos[1]))
         # TODO: Check offset against calculated value.
-        particles_to_paraview([p], "wall_bounce_col", "wall_bounce_collision/")
+        particles_to_paraview([p], "wall_bounce_col", "../run/wall_bounce_collision/")
 
     def test_friction_slide(self):
         p1 = Particle([0.001, 0.1, 0], [0, 0, 0], 0.1)
@@ -99,7 +135,7 @@ class TestCollision(TestCase):
             p2.iterate(time - last_time)
             last_time = time
 
-        particles_to_paraview([p1, p2], "friction_slide", "friction_slide/")
+        particles_to_paraview([p1, p2], "friction_slide", "../run/friction_slide/")
 
     def test_no_friction_slide(self):
         p1 = Particle([0.001, 0.1, 0], [0, 0, 0], 0.1)
@@ -114,7 +150,7 @@ class TestCollision(TestCase):
             p2.iterate(time - last_time)
             last_time = time
 
-        particles_to_paraview([p1, p2], "no_friction_slide", "no_friction_slide/")
+        particles_to_paraview([p1, p2], "no_friction_slide", "../run/no_friction_slide/")
 
     def test_friction_comparison(self):
         fp1 = Particle([0.001, 0.1, -0.25], [0, 0, 0], 0.1)
@@ -136,7 +172,7 @@ class TestCollision(TestCase):
             nfp2.iterate(time - last_time)
             last_time = time
 
-        particles_to_paraview([fp1, fp2, nfp1, nfp2], "friction_comp", "friction_comparison/")
+        particles_to_paraview([fp1, fp2, nfp1, nfp2], "friction_comp", "../run/friction_comparison/")
 
     def test_wall_friction_comparison(self):
         wall = AAWall([1, 0, 1], [-1, 0, -1])
@@ -156,4 +192,4 @@ class TestCollision(TestCase):
             nfp.iterate(time - last_time)
             last_time = time
 
-        particles_to_paraview([fp, nfp], "wall_friction_comp", "wall_friction_comparison/")
+        particles_to_paraview([fp, nfp], "wall_friction_comp", "../run/wall_friction_comparison/")
