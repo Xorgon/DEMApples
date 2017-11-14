@@ -5,6 +5,9 @@ import numpy as np
 import math
 
 
+# TODO: Add total energy checks to ensure collisions don't end with more energy than they started with.
+# TODO: Add cohesion/adhesion.
+
 class Collision:
     """ Collision object for particle-particle collisions. """
     p1 = None
