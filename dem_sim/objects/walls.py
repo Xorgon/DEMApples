@@ -18,7 +18,7 @@ class AAWall:
             self.normal = np.array([1, 1, 1]) - np.divide(n, n, where=n!= 0)
 
             self.max = np.maximum(pos1, pos2)
-            self.min = np.minimum(pos2, pos2)
+            self.min = np.minimum(pos1, pos2)
         else:
             raise ParameterException("Points not in the same axis-aligned plane.")
 
