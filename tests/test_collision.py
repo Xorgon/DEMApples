@@ -110,17 +110,17 @@ class TestCollision(TestCase):
     def test_wall_bouncing(self):
         p = Particle([0, 0.5, 0], [0, 0, 0], 0.1)
         w = AAWall([1, 0, 1], [-1, 0, -1])
-        col = AAWallCollision(p, w, 1e5, restitution=0.8)
+        col = AAWallCollision(p, w)
         timestep = 0.0005
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
             col.calculate(time)
-            p.iterate(time - last_time)
+            p.iterate(time - last_time, implicit=True)
             last_time = time
         print("Final offset = {0}".format(p.pos[1]))
         # TODO: Check offset against calculated value.
-        particles_to_paraview([p], "wall_bounce_col", "../run/wall_bounce_collision/")
+        particles_to_paraview([p], "wall_bounce_col", "../run/wall_bounce_collision/", fps=60)
 
     def test_friction_slide(self):
         p1 = Particle([0.001, 0.1, 0], [0, 0, 0], 0.1)
@@ -193,3 +193,18 @@ class TestCollision(TestCase):
             last_time = time
 
         particles_to_paraview([fp, nfp], "wall_friction_comp", "../run/wall_friction_comparison/")
+
+    def test_side_wall_collision(self):
+        p = Particle([1, 0, 0], [-1, 0, 0], 0.1, gravity=[0, 0, 0])
+        w = AAWall([-0.5, -0.5, -0.5], [-0.5, 0.5, 0.5])
+        col = AAWallCollision(p, w)
+        timestep = 0.0005
+
+        last_time = 0
+        for time in np.arange(0, 10, timestep):
+            col.calculate(time)
+            p.iterate(time - last_time, implicit=True)
+            last_time = time
+        print("Final offset = {0}".format(p.pos[1]))
+        # TODO: Check offset against calculated value.
+        particles_to_paraview([p], "side_wall_col", "../run/side_wall_collision/")
