@@ -176,13 +176,12 @@ class AAWallCollision:
         dif_min = self.p.pos - self.wall.min
 
         # Differences tangential to the wall, ignoring component normal to the wall.
-        tang_dif_max = dif_max - dif_max * self.wall.normal
-        tang_dif_min = dif_min - dif_min * self.wall.normal
+        normal = self.get_collision_normal()
+        tang_dif_max = dif_max - np.dot(dif_max, normal) * normal
+        tang_dif_min = dif_min - np.dot(dif_min, normal) * normal
         return all(tang_dif_max >= 0) and all(tang_dif_min >= 0)
 
     def calculate(self, time):
-        if self.get_overlap() > 0 and self.is_in_wall_bounds():
-            self.calculate_collision_normal_force()
         self.time_history.append(time)
         self.vel_history.append(self.p.vel)
         # self.pos_history.append(self.p.pos)
