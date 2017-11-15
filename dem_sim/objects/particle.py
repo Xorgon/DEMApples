@@ -16,6 +16,7 @@ class Particle:
     times = None
     pos_history = None
     vel_history = None
+    # TODO: Manage memory usage e.g. log between steps rather than at the end.
 
     dem_forces = None
 
