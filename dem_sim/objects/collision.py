@@ -17,7 +17,7 @@ class Collision:
     friction_coefficient = None
     friction_stiffness = None
 
-    pos_history = []
+    # pos_history = []
     vel_history = []
     time_history = []
 
@@ -87,7 +87,7 @@ class Collision:
     def calculate(self, time):
         self.time_history.append(time)
         self.vel_history.append(self.get_relative_velocity())
-        self.pos_history.append(self.p2.pos - self.p1.pos)
+        # self.pos_history.append(self.p2.pos - self.p1.pos)
 
         if self.get_particle_overlap() > 0:
             force = self.calculate_collision_normal_force()
@@ -102,6 +102,10 @@ class Collision:
                 self.p1.dem_forces.append(-friction)
                 self.p2.dem_forces.append(friction)
 
+                # Remove unnecessary history.
+                self.time_history.pop(0)
+                self.vel_history.pop(0)
+
 
 class AAWallCollision:
     """ Collision object for particle-axis-aligned wall collisions. """
@@ -112,7 +116,7 @@ class AAWallCollision:
     friction_coefficient = None
     friction_stiffness = None
 
-    pos_history = []
+    # pos_history = []
     vel_history = []
     time_history = []
 
@@ -184,7 +188,7 @@ class AAWallCollision:
             self.calculate_collision_normal_force()
         self.time_history.append(time)
         self.vel_history.append(self.p.vel)
-        self.pos_history.append(self.p.pos)
+        # self.pos_history.append(self.p.pos)
 
         if self.get_overlap() > 0 and self.is_in_wall_bounds():
             force = self.calculate_collision_normal_force()
@@ -196,3 +200,7 @@ class AAWallCollision:
                     and np.linalg.norm(self.p.vel) != 0:
                 friction = self.calculate_tangential_friction_force(force)
                 self.p.dem_forces.append(friction)
+
+                # Remove unnecessary history.
+                self.time_history.pop(0)
+                self.vel_history.pop(0)
