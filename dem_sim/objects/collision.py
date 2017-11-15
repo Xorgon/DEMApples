@@ -21,16 +21,14 @@ class Collision:
     vel_history = []
     time_history = []
 
-    def __init__(self, particle1, particle2, stiffness=1, damping_coefficient=None, restitution=None,
-                 friction_coefficient=None, friction_stiffness=None):
+    def __init__(self, particle1, particle2, stiffness=1e5, damping_coefficient=None, restitution=0.8,
+                 friction_coefficient=0.6, friction_stiffness=1e5):
         self.p1 = particle1
         self.p2 = particle2
         self.stiffness = stiffness
 
-        if damping_coefficient is None and restitution is not None:
+        if damping_coefficient is None:
             self.damping_coefficient = self.calculate_damping_coefficient(restitution)
-        elif damping_coefficient is None:
-            self.damping_coefficient = 1
         else:
             self.damping_coefficient = damping_coefficient
 
@@ -120,16 +118,15 @@ class AAWallCollision:
     vel_history = []
     time_history = []
 
-    def __init__(self, particle, wall, stiffness=1, damping_coefficient=None, restitution=None,
-                 friction_coefficient=None, friction_stiffness=None):
+    def __init__(self, particle, wall, stiffness=1e5, damping_coefficient=None, restitution=0.8,
+                 friction_coefficient=0.6,
+                 friction_stiffness=1e5):
         self.p = particle
         self.wall = wall
         self.stiffness = stiffness
 
-        if damping_coefficient is None and restitution is not None:
+        if damping_coefficient is None:
             self.damping_coefficient = self.calculate_damping_coefficient(restitution)
-        elif damping_coefficient is None:
-            self.damping_coefficient = 1
         else:
             self.damping_coefficient = damping_coefficient
 

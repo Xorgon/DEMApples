@@ -19,7 +19,7 @@ class Particle:
 
     dem_forces = None
 
-    def __init__(self, position, velocity, diameter=0.001, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None,
+    def __init__(self, position, velocity, diameter=0.1, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None,
                  gravity=None):
 
         # To avoid mutable arguments.
@@ -59,13 +59,13 @@ class Particle:
         self.record_state()
         self.dem_forces.clear()
 
-    def iterate_velocity(self, delta_t, implicit=False):
+    def iterate_velocity(self, delta_t, implicit):
         self.next_vel = self.vel + delta_t * self.get_accel(delta_t, implicit)
 
     def iterate_position(self, delta_t):
         self.next_pos = self.pos + delta_t * (self.next_vel + self.vel) / 2
 
-    def get_accel(self, delta_t, implicit=False):
+    def get_accel(self, delta_t, implicit):
         if not implicit:
             return np.array(self.get_drag_accel() + self.get_dem_accel() + self.gravity)
         else:
