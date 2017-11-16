@@ -6,6 +6,8 @@ from dem_sim.objects.particle import Particle
 from dem_sim.objects.walls import AAWall
 from dem_sim.util.file_io import particles_to_paraview
 
+import progressbar
+
 
 def simple_closed_box():
     particles = []
@@ -33,15 +35,17 @@ def simple_closed_box():
 
     timestep = 0.0005
     last_time = 0
-    for time in np.arange(0, 15, timestep):
-        print(time)
+    max_time = 15
+    bar = progressbar.ProgressBar(redirect_stdout=True, max_value=max_time)
+    for time in np.arange(0, max_time, timestep):
+        bar.update(time)
         delta_t = time - last_time
         for col in cols:
             col.calculate(delta_t)
         for p in particles:
             p.iterate(delta_t, implicit=True)
         last_time = time
-
+    bar.finish()
     particles_to_paraview(particles, "simple_closed_box", "../../run/simple_closed_box/")
 
 
