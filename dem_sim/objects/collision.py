@@ -61,15 +61,14 @@ class Collision:
         vel_relative = self.get_relative_velocity()
         return normalize(vel_relative - self.get_normal_velocity())
 
-    def get_tangential_displacement(self):
+    def get_tangential_displacement(self, delta_t):
         # TODO: Investigate more accurate methods of numerically integrating this.
-        delta_t = self.time_history[-1] - self.time_history[-2]
-        return np.linalg.norm(self.vel_history[-1] * delta_t)
+        return np.linalg.norm((self.get_relative_velocity() - self.get_normal_velocity()) * delta_t)
 
-    def calculate_tangential_friction_force(self, normal_force):
+    def calculate_tangential_friction_force(self, normal_force, delta_t):
         f_dyn = - self.friction_coefficient * np.linalg.norm(normal_force) * self.get_collision_tangent()
-        f_static = - self.friction_stiffness * self.get_tangential_displacement() * self.get_collision_tangent()
         if np.linalg.norm(f_dyn) < np.linalg.norm(f_static):
+        f_static = - self.friction_stiffness * self.get_tangential_displacement(delta_t) * self.get_collision_tangent()
             return f_dyn
         else:
             return f_static
@@ -82,27 +81,16 @@ class Collision:
     def get_particle_overlap(self):
         return self.p1.diameter / 2 + self.p2.diameter / 2 - self.get_particle_centre_separation()
 
-    def calculate(self, time):
-        self.time_history.append(time)
-        self.vel_history.append(self.get_relative_velocity())
-        # self.pos_history.append(self.p2.pos - self.p1.pos)
-
+    def calculate(self, delta_t):
         if self.get_particle_overlap() > 0:
             force = self.calculate_collision_normal_force()
             self.p1.dem_forces.append(-force)
             self.p2.dem_forces.append(force)
 
-            if self.friction_stiffness is not None \
-                    and self.friction_coefficient is not None \
-                    and len(self.time_history) > 1 \
-                    and np.linalg.norm(self.get_relative_velocity()) != 0:
-                friction = self.calculate_tangential_friction_force(force)
+            if self.friction_stiffness is not None and self.friction_coefficient is not None:
+                friction = self.calculate_tangential_friction_force(force, delta_t)
                 self.p1.dem_forces.append(-friction)
                 self.p2.dem_forces.append(friction)
-
-                # Remove unnecessary history.
-                self.time_history.pop(0)
-                self.vel_history.pop(0)
 
 
 class AAWallCollision:
@@ -150,15 +138,15 @@ class AAWallCollision:
     def get_collision_tangent(self):
         return normalize(self.p.vel - self.get_normal_velocity())
 
-    def get_tangential_displacement(self):
+    def get_tangential_displacement(self, vel, delta_t):
         # TODO: Investigate more accurate methods of numerically integrating this.
-        delta_t = self.time_history[-1] - self.time_history[-2]
-        return np.linalg.norm(self.vel_history[-1] * delta_t)
+        return np.linalg.norm(vel * delta_t)
 
-    def calculate_tangential_friction_force(self, normal_force):
+    def calculate_tangential_friction_force(self, normal_force, vel, delta_t):
         f_dyn = - self.friction_coefficient * np.linalg.norm(normal_force) * self.get_collision_tangent()
-        f_static = - self.friction_stiffness * self.get_tangential_displacement() * self.get_collision_tangent()
         if np.linalg.norm(f_dyn) < np.linalg.norm(f_static):
+        f_static = - self.friction_stiffness * self.get_tangential_displacement(vel,
+                                                                                delta_t) * self.get_collision_tangent()
             return f_dyn
         else:
             return f_static
@@ -181,22 +169,12 @@ class AAWallCollision:
         tang_dif_min = dif_min - np.dot(dif_min, normal) * normal
         return all(tang_dif_max >= 0) and all(tang_dif_min >= 0)
 
-    def calculate(self, time):
-        self.time_history.append(time)
-        self.vel_history.append(self.p.vel)
-        # self.pos_history.append(self.p.pos)
+    def calculate(self, delta_t):
 
         if self.get_overlap() > 0 and self.is_in_wall_bounds():
             force = self.calculate_collision_normal_force()
             self.p.dem_forces.append(force)
 
-            if self.friction_stiffness is not None \
-                    and self.friction_coefficient is not None \
-                    and len(self.time_history) > 1 \
-                    and np.linalg.norm(self.p.vel) != 0:
-                friction = self.calculate_tangential_friction_force(force)
+            if self.friction_stiffness is not None and self.friction_coefficient is not None:
+                friction = self.calculate_tangential_friction_force(force, self.p.vel, delta_t)
                 self.p.dem_forces.append(friction)
-
-                # Remove unnecessary history.
-                self.time_history.pop(0)
-                self.vel_history.pop(0)

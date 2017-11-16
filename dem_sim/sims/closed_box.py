@@ -35,10 +35,11 @@ def simple_closed_box():
     last_time = 0
     for time in np.arange(0, 15, timestep):
         print(time)
+        delta_t = time - last_time
         for col in cols:
-            col.calculate(time)
+            col.calculate(delta_t)
         for p in particles:
-            p.iterate(time - last_time, implicit=True)
+            p.iterate(delta_t, implicit=True)
         last_time = time
 
     particles_to_paraview(particles, "simple_closed_box", "../../run/simple_closed_box/")

@@ -24,9 +24,10 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            col.calculate(time)
-            p1.iterate(time - last_time)
-            p2.iterate(time - last_time)
+            delta_t = time - last_time
+            col.calculate(delta_t)
+            p1.iterate(delta_t)
+            p2.iterate(delta_t)
             last_time = time
 
         particles_to_paraview([p1, p2], "simple_col", "../run/simple_collision/")
@@ -39,9 +40,10 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            col.calculate(time)
-            p1.iterate(time - last_time)
-            p2.iterate(time - last_time)
+            delta_t = time - last_time
+            col.calculate(delta_t)
+            p1.iterate(delta_t)
+            p2.iterate(delta_t)
             last_time = time
 
         predicted_overlap = p1.get_mass() * np.linalg.norm(p1.gravity) / col.stiffness
@@ -62,9 +64,10 @@ class TestCollision(TestCase):
             print(timestep)
             last_time = 0
             for time in np.arange(0, 10, timestep):
-                col.calculate(time)
-                p1.iterate(time - last_time)
-                p2.iterate(time - last_time)
+                delta_t = time - last_time
+                col.calculate(delta_t)
+                p1.iterate(delta_t)
+                p2.iterate(delta_t)
                 last_time = time
 
             predicted_overlap = p1.get_mass() * np.linalg.norm(p1.gravity) / col.stiffness
@@ -97,11 +100,12 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 3, timestep):
+            delta_t = time - last_time
             for col in cols:
-                col.calculate(time)
+                col.calculate(delta_t)
             for p in ps:
-                p.iterate(time - last_time)
-            p_fixed.iterate(time - last_time)
+                p.iterate(delta_t)
+            p_fixed.iterate(delta_t)
             last_time = time
 
         ps.append(p_fixed)
@@ -115,8 +119,9 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            col.calculate(time)
-            p.iterate(time - last_time, implicit=True)
+            delta_t = time - last_time
+            col.calculate(delta_t)
+            p.iterate(delta_t, implicit=True)
             last_time = time
         print("Final offset = {0}".format(p.pos[1]))
         # TODO: Check offset against calculated value.
@@ -130,9 +135,10 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            col.calculate(time)
-            p1.iterate(time - last_time)
-            p2.iterate(time - last_time)
+            delta_t = time - last_time
+            col.calculate(delta_t)
+            p1.iterate(delta_t)
+            p2.iterate(delta_t)
             last_time = time
 
         particles_to_paraview([p1, p2], "friction_slide", "../run/friction_slide/")
@@ -145,9 +151,10 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            col.calculate(time)
-            p1.iterate(time - last_time)
-            p2.iterate(time - last_time)
+            delta_t = time - last_time
+            col.calculate(delta_t)
+            p1.iterate(delta_t)
+            p2.iterate(delta_t)
             last_time = time
 
         particles_to_paraview([p1, p2], "no_friction_slide", "../run/no_friction_slide/")
@@ -164,12 +171,13 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            fcol.calculate(time)
-            nfcol.calculate(time)
-            fp1.iterate(time - last_time)
-            fp2.iterate(time - last_time)
-            nfp1.iterate(time - last_time)
-            nfp2.iterate(time - last_time)
+            delta_t = time - last_time
+            fcol.calculate(delta_t)
+            nfcol.calculate(delta_t)
+            fp1.iterate(delta_t)
+            fp2.iterate(delta_t)
+            nfp1.iterate(delta_t)
+            nfp2.iterate(delta_t)
             last_time = time
 
         particles_to_paraview([fp1, fp2, nfp1, nfp2], "friction_comp", "../run/friction_comparison/")
@@ -187,9 +195,10 @@ class TestCollision(TestCase):
         last_time = 0
         for time in np.arange(0, 10, timestep):
             fcol.calculate(time)
-            nfcol.calculate(time)
-            fp.iterate(time - last_time)
-            nfp.iterate(time - last_time)
+            delta_t = time - last_time
+            nfcol.calculate(delta_t)
+            fp.iterate(delta_t)
+            nfp.iterate(delta_t)
             last_time = time
 
         particles_to_paraview([fp, nfp], "wall_friction_comp", "../run/wall_friction_comparison/")
@@ -202,8 +211,9 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            col.calculate(time)
-            p.iterate(time - last_time, implicit=True)
+            delta_t = time - last_time
+            col.calculate(delta_t)
+            p.iterate(delta_t, implicit=True)
             last_time = time
         print("Final offset = {0}".format(p.pos[1]))
         # TODO: Check offset against calculated value.
