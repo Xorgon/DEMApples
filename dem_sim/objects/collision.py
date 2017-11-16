@@ -67,8 +67,8 @@ class Collision:
 
     def calculate_tangential_friction_force(self, normal_force, delta_t):
         f_dyn = - self.friction_coefficient * np.linalg.norm(normal_force) * self.get_collision_tangent()
-        if np.linalg.norm(f_dyn) < np.linalg.norm(f_static):
         f_static = - self.friction_stiffness * self.get_tangential_displacement(delta_t) * self.get_collision_tangent()
+        if mag_squared(f_dyn) < mag_squared(f_static):
             return f_dyn
         else:
             return f_static
@@ -144,9 +144,9 @@ class AAWallCollision:
 
     def calculate_tangential_friction_force(self, normal_force, vel, delta_t):
         f_dyn = - self.friction_coefficient * np.linalg.norm(normal_force) * self.get_collision_tangent()
-        if np.linalg.norm(f_dyn) < np.linalg.norm(f_static):
         f_static = - self.friction_stiffness * self.get_tangential_displacement(vel,
                                                                                 delta_t) * self.get_collision_tangent()
+        if mag_squared(f_dyn) < mag_squared(f_static):
             return f_dyn
         else:
             return f_static

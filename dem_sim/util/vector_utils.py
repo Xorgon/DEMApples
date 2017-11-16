@@ -9,3 +9,8 @@ def normalize(vector):
         return vector
     else:
         return vector / np.linalg.norm(vector)
+
+
+def mag_squared(vector):
+    """ Returns the magnitude of the vector squared. Used to reduce unnecessary square-root operations. """
+    return vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]
