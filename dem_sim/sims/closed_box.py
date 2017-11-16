@@ -5,6 +5,7 @@ from dem_sim.objects.collision import AAWallCollision, Collision
 from dem_sim.objects.particle import Particle
 from dem_sim.objects.walls import AAWall
 from dem_sim.util.file_io import particles_to_paraview
+from random import random as rand
 
 import progressbar
 
@@ -16,18 +17,23 @@ def simple_closed_box():
     y = 0.44
     for x in np.arange(-0.4, 0.41, 0.2):
         for z in np.arange(-0.4, 0.41, 0.2):
-            pos = np.array([x, y, z])
-            particles.append(Particle(pos, -np.array([pos[0], 0, pos[2]]), diameter=0.1))
+            pos = np.array([x + 0.05 * (rand() - 0.5), y, z + 0.05 * (rand() - 0.5)])
+            particles.append(Particle(pos, -2 * np.array([pos[0], 0, pos[2]]), diameter=0.1))
     y = 0.3
     for x in np.arange(-0.4, 0.41, 0.2):
         for z in np.arange(-0.4, 0.41, 0.2):
-            pos = np.array([x, y, z])
-            particles.append(Particle(pos, np.array([pos[0], 0, pos[2]]), diameter=0.1))
+            pos = np.array([x + 0.05 * (rand() - 0.5), y, z + 0.05 * (rand() - 0.5)])
+            particles.append(Particle(pos, 2 * np.array([pos[0], 0, pos[2]]), diameter=0.1))
+    y = 0.19
+    for x in np.arange(-0.4, 0.41, 0.2):
+        for z in np.arange(-0.4, 0.41, 0.2):
+            pos = np.array([x + 0.05 * (rand() - 0.5), y, z + 0.05 * (rand() - 0.5)])
+            particles.append(Particle(pos, -2 * np.array([pos[0], 0, pos[2]]), diameter=0.1))
 
     cols = []
     for p in particles:
         for wall in walls:
-            cols.append(AAWallCollision(p, wall))
+            cols.append(AAWallCollision(p, wall, restitution=0.8, friction_coefficient=0.4, friction_stiffness=5e4))
 
     for i in range(len(particles)):
         for j in range(i + 1, len(particles)):
