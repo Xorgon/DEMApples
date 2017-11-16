@@ -166,7 +166,7 @@ class TestCollision(TestCase):
 
         nfp1 = Particle([0.001, 0.1, 0.25], [0, 0, 0], 0.1)
         nfp2 = Particle([0, 0, 0.25], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
-        nfcol = Collision(nfp1, nfp2, 1e5, restitution=0.8)
+        nfcol = Collision(nfp1, nfp2, 1e5, restitution=0.8, friction_coefficient=None, friction_stiffness=None)
         timestep = 0.0005
 
         last_time = 0
@@ -189,7 +189,7 @@ class TestCollision(TestCase):
         fcol = AAWallCollision(fp, wall, 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5)
 
         nfp = Particle([0.001, 0.05, 0.25], [1, 0, 0], 0.1)
-        nfcol = AAWallCollision(nfp, wall, 1e5, restitution=0.8)
+        nfcol = AAWallCollision(nfp, wall, 1e5, restitution=0.8, friction_coefficient=None, friction_stiffness=None)
         timestep = 0.0005
 
         last_time = 0
