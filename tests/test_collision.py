@@ -75,6 +75,7 @@ class TestCollision(TestCase):
             overlap_errors.append(percent_dif)
 
         fig = plt.figure()
+        fig.patch.set_facecolor('white')
         ax = fig.add_subplot(111)
         ax.set_title('Percentage error against timestep')
         ax.set_ylabel('Percentage error (%)')

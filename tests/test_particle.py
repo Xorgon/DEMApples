@@ -24,6 +24,7 @@ class TestParticle(TestCase):
             data.append([times, speeds])
 
         fig = plt.figure()
+        fig.patch.set_facecolor('white')
         ax = fig.gca()
         for d in data:
             ax.plot(d[0], d[1])
@@ -57,6 +58,7 @@ class TestParticle(TestCase):
             data.append([times, analytic])
 
         fig = plt.figure()
+        fig.patch.set_facecolor('white')
         ax = fig.gca()
         plots = []
         for d in data:
@@ -140,6 +142,7 @@ class TestParticle(TestCase):
             implicit_avgs.append(implicit_avg)
 
         fig = plt.figure()
+        fig.patch.set_facecolor('white')
         ax = fig.gca()
         explicit_avgs_plot, = ax.plot(timesteps, explicit_avgs)
         implicit_avgs_plot, = ax.plot(timesteps, implicit_avgs)

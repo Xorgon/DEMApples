@@ -14,6 +14,7 @@ def trace_animation(particles, trail_length=None, speed=1, xmin=None, xmax=None,
     :param speed: a mutliplier to determine the speed of motion.
     """
     fig = plt.figure()
+    fig.patch.set_facecolor('white')
     ax = p3.Axes3D(fig)
 
     if xmin is not None and xmax is not None:
@@ -51,6 +52,7 @@ def trace_animation(particles, trail_length=None, speed=1, xmin=None, xmax=None,
 
 def trace_plot(particles):
     fig = plt.figure()
+    fig.patch.set_facecolor('white')
     ax = fig.gca(projection='3d')
 
     for particle in particles:

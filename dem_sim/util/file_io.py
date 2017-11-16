@@ -83,7 +83,7 @@ def particles_to_paraview(particles, filename_root, path="", ignore_warnings=Fal
     times = particles[0].times
     log_step = 1 / fps
     last_log = None
-    print("At {0} frames per second, logging every {1} seconds.".format(fps, log_step))
+    print("At {0} frames per second, logging every {1} seconds.".format(fps, round(log_step, 4)))
     for i in range(len(times)):
         log = False
         if last_log is None:

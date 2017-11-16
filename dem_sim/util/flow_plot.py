@@ -29,6 +29,7 @@ def flow_plot(flow_vel_func, b_min=-math.pi, b_max=math.pi, step=0.5, ):
     velocities = np.array(velocities)
 
     fig = plt.figure()
+    fig.patch.set_facecolor('white')
     ax = fig.gca(projection='3d')
     # y and z axis switched so that particle y coordinates are on the vertical axis.
     ax.quiver(positions[:, 0], positions[:, 2], positions[:, 1], velocities[:, 0], velocities[:, 2], velocities[:, 1]
