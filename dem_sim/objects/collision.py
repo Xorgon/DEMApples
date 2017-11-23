@@ -1,6 +1,6 @@
 from dem_sim.objects.particle import Particle
 from dem_sim.objects.walls import AAWall
-from dem_sim.util.vector_utils import *
+import dem_sim.util.vector_utils as vect
 import numpy as np
 import math
 
@@ -45,7 +45,7 @@ class Collision:
         return m1 * m2 / (m1 + m2)
 
     def get_collision_normal(self):
-        return normalize(self.p2.pos - self.p1.pos)
+        return vect.normalize(self.p2.pos - self.p1.pos)
 
     def get_relative_velocity(self):
         return self.p2.vel - self.p1.vel
@@ -55,20 +55,20 @@ class Collision:
         return np.dot((self.get_relative_velocity()), normal) * normal
 
     def get_particle_centre_separation(self):
-        return np.linalg.norm(self.p2.pos - self.p1.pos)
+        return vect.mag(self.p2.pos - self.p1.pos)
 
     def get_collision_tangent(self):
         vel_relative = self.get_relative_velocity()
-        return normalize(vel_relative - self.get_normal_velocity())
+        return vect.normalize(vel_relative - self.get_normal_velocity())
 
     def get_tangential_displacement(self, delta_t):
         # TODO: Investigate more accurate methods of numerically integrating this.
-        return np.linalg.norm((self.get_relative_velocity() - self.get_normal_velocity()) * delta_t)
+        return vect.mag((self.get_relative_velocity() - self.get_normal_velocity()) * delta_t)
 
     def calculate_tangential_friction_force(self, normal_force, delta_t):
-        f_dyn = - self.friction_coefficient * np.linalg.norm(normal_force) * self.get_collision_tangent()
+        f_dyn = - self.friction_coefficient * vect.mag(normal_force) * self.get_collision_tangent()
         f_static = - self.friction_stiffness * self.get_tangential_displacement(delta_t) * self.get_collision_tangent()
-        if mag_squared(f_dyn) < mag_squared(f_static):
+        if vect.mag_squared(f_dyn) < vect.mag_squared(f_static):
             return f_dyn
         else:
             return f_static
@@ -126,7 +126,7 @@ class AAWallCollision:
         return -2 * ln_rest * (self.p.get_mass() * self.stiffness / (math.pi ** 2 + ln_rest ** 2)) ** 0.5
 
     def get_collision_normal(self):
-        return normalize(np.dot(self.p.pos - self.wall.max, self.wall.normal) * self.wall.normal)
+        return vect.normalize(np.dot(self.p.pos - self.wall.max, self.wall.normal) * self.wall.normal)
 
     def get_normal_velocity(self):
         normal = self.get_collision_normal()
@@ -136,17 +136,17 @@ class AAWallCollision:
         return np.abs(np.dot(self.wall.max - self.p.pos, self.wall.normal))
 
     def get_collision_tangent(self):
-        return normalize(self.p.vel - self.get_normal_velocity())
+        return vect.normalize(self.p.vel - self.get_normal_velocity())
 
     def get_tangential_displacement(self, vel, delta_t):
         # TODO: Investigate more accurate methods of numerically integrating this.
-        return np.linalg.norm(vel * delta_t)
+        return vect.mag(vel * delta_t)
 
     def calculate_tangential_friction_force(self, normal_force, vel, delta_t):
-        f_dyn = - self.friction_coefficient * np.linalg.norm(normal_force) * self.get_collision_tangent()
+        f_dyn = - self.friction_coefficient * vect.mag(normal_force) * self.get_collision_tangent()
         f_static = - self.friction_stiffness * self.get_tangential_displacement(vel,
                                                                                 delta_t) * self.get_collision_tangent()
-        if mag_squared(f_dyn) < mag_squared(f_static):
+        if vect.mag_squared(f_dyn) < vect.mag_squared(f_static):
             return f_dyn
         else:
             return f_static

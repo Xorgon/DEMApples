@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import dem_sim.util.vector_utils as vect
 
 
 class Particle:
@@ -90,17 +91,17 @@ class Particle:
         return self.density * self.diameter ** 2 / (18 * self.fluid_viscosity)
 
     def get_speed(self):
-        return np.linalg.norm(self.vel)
+        return vect.mag(self.vel)
 
     def get_speed_at_time(self, time):
         try:
             index = self.times.index(time)
-            return np.linalg.norm(self.vel_history[index])
+            return vect.mag(self.vel_history[index])
         except ValueError:
             return 0
 
     def get_speed_at_index(self, index):
-        return np.linalg.norm(self.vel_history[index])
+        return vect.mag(self.vel_history[index])
 
     def get_mass(self):
         return self.density * math.pi * self.diameter ** 3 / 6
