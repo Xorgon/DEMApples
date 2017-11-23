@@ -4,6 +4,7 @@ from dem_sim.objects.particle import Particle
 from dem_sim.util.file_io import particles_to_paraview
 import numpy as np
 import matplotlib.pyplot as plt
+import dem_sim.util.vector_utils as vect
 
 
 class TestCollision(TestCase):
@@ -12,8 +13,8 @@ class TestCollision(TestCase):
         p2 = Particle([1, 1, 1], [0, 0, 0])
         col = Collision(p1, p2)
         TestCase.assertAlmostEquals(self,
-                                    np.linalg.norm(
-                                        col.get_collision_normal() - (np.array([1, 1, 1]) / np.linalg.norm([1, 1, 1]))),
+                                    vect.mag(
+                                        col.get_collision_normal() - (np.array([1, 1, 1]) / vect.mag([1, 1, 1]))),
                                     0)
 
     def test_simple_collision(self):
@@ -46,7 +47,7 @@ class TestCollision(TestCase):
             p2.iterate(delta_t)
             last_time = time
 
-        predicted_overlap = p1.get_mass() * np.linalg.norm(p1.gravity) / col.stiffness
+        predicted_overlap = p1.get_mass() * vect.mag(p1.gravity) / col.stiffness
         print("Predicted overlap = {0}".format(predicted_overlap))
         print("Calculated overlap = {0}".format(col.get_particle_overlap()))
         print("Percentage difference = {0}".format(100 * predicted_overlap / col.get_particle_overlap() - 100))
@@ -70,7 +71,7 @@ class TestCollision(TestCase):
                 p2.iterate(delta_t)
                 last_time = time
 
-            predicted_overlap = p1.get_mass() * np.linalg.norm(p1.gravity) / col.stiffness
+            predicted_overlap = p1.get_mass() * vect.mag(p1.gravity) / col.stiffness
             percent_dif = 100 * np.abs(col.get_particle_overlap() / predicted_overlap) - 100
             overlap_errors.append(percent_dif)
 

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import math
 
 from dem_sim.objects.particle import Particle
+import dem_sim.util.vector_utils as vect
 
 
 class TestParticle(TestCase):
@@ -19,7 +20,7 @@ class TestParticle(TestCase):
             for time in np.arange(0, 40, timestep):
                 p.iterate(time - last_time)
                 times.append(time)
-                speeds.append(np.linalg.norm(p.vel))
+                speeds.append(vect.mag(p.vel))
                 last_time = time
             data.append([times, speeds])
 
@@ -31,7 +32,7 @@ class TestParticle(TestCase):
         plt.show()
         # TODO: Analytical solution and comparison.
         # Test if terminal velocity is within 0.1% of a calculated value.
-        self.assertLess(np.abs(np.linalg.norm(data[0][1][-1]) / 56.442091968912 - 1), 0.001)
+        self.assertLess(np.abs(vect.mag(data[0][1][-1]) / 56.442091968912 - 1), 0.001)
 
     def test_terminal_velocity_implicit_explicit(self):
         """ Tests simulated terminal velocity against a calculated value using implicit and explicit integration. """
@@ -48,8 +49,8 @@ class TestParticle(TestCase):
                 p_explicit.iterate(time - last_time, implicit=False)
                 p_implicit.iterate(time - last_time, implicit=True)
                 times.append(time)
-                explicit.append(np.linalg.norm(p_explicit.vel))
-                implicit.append(np.linalg.norm(p_implicit.vel))
+                explicit.append(vect.mag(p_explicit.vel))
+                implicit.append(vect.mag(p_implicit.vel))
                 tau = p_explicit.get_tau()
                 analytic.append(-9.81 * tau * math.exp(-time / tau) + 9.81 * tau)
                 last_time = time
@@ -67,8 +68,8 @@ class TestParticle(TestCase):
         ax.set_ylabel(r'Speed ($ms^{-1}$)')
         plt.legend(plots, ['Explicit', 'Implicit', 'Analytic'], loc=4)
         plt.show()
-        print("Explicit terminal velocity = {0}".format(np.linalg.norm(data[0][1][-1])))
-        print("Implicit terminal velocity = {0}".format(np.linalg.norm(data[1][1][-1])))
+        print("Explicit terminal velocity = {0}".format(vect.mag(data[0][1][-1])))
+        print("Implicit terminal velocity = {0}".format(vect.mag(data[1][1][-1])))
         # Test if terminal velocity is within 0.1% of a calculated value.
 
         explicit_diff_sum = 0
@@ -82,7 +83,7 @@ class TestParticle(TestCase):
         implicit_avg = 100 * np.abs(implicit_diff_sum / length)
         print("Implicit average percentage difference = {0}".format(implicit_avg))
 
-        self.assertLess(np.abs(np.linalg.norm(data[0][1][-1]) / 56.442091968912 - 1), 0.001)
+        self.assertLess(np.abs(vect.mag(data[0][1][-1]) / 56.442091968912 - 1), 0.001)
 
     def test_drag_velocity_implicit_explicit(self):
         """ Tests simulated terminal velocity against a calculated value using implicit and explicit integration. """
@@ -109,8 +110,8 @@ class TestParticle(TestCase):
                 p_explicit.iterate(time - last_time, implicit=False)
                 p_implicit.iterate(time - last_time, implicit=True)
                 times.append(time)
-                explicit.append(np.linalg.norm(p_explicit.vel))
-                implicit.append(np.linalg.norm(p_implicit.vel))
+                explicit.append(vect.mag(p_explicit.vel))
+                implicit.append(vect.mag(p_implicit.vel))
                 tau = p_explicit.get_tau()
                 analytic.append(v * (1 - math.exp(- time / tau)))
                 last_time = time
