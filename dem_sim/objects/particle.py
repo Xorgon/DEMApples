@@ -4,6 +4,7 @@ import dem_sim.util.vector_utils as vect
 
 
 class Particle:
+    pid = None
     gravity = None
     pos = None
     next_pos = None
@@ -21,7 +22,7 @@ class Particle:
 
     dem_forces = None
 
-    def __init__(self, position, velocity, diameter=0.1, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None,
+    def __init__(self, pid, position, velocity, diameter=0.1, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None,
                  gravity=None):
 
         # To avoid mutable arguments.
@@ -34,6 +35,8 @@ class Particle:
         self.density = density
         self.fluid_viscosity = fluid_viscosity
         self.gravity = np.array(gravity)
+
+        self.pid = pid
 
         self.time = 0
         self.times = []
