@@ -16,6 +16,3 @@ particles = tgv.taylor_green_vortex_sim(50)
 # dem_sim.util.particle_trace.trace_animation(particles, trail_length=15, speed=0.5, ymin=-3, ymax=3)
 
 dem_sim.util.file_io.particles_to_paraview(particles, "test", "test_run/", True)
-
-# TODO: Add collision selection code.
-# TODO: Formalize tests and prepare output for report.

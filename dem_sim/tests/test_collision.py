@@ -9,8 +9,8 @@ import dem_sim.util.vector_utils as vect
 
 class TestCollision(TestCase):
     def test_get_collision_normal(self):
-        p1 = Particle([0, 0, 0], [0, 0, 0])
-        p2 = Particle([1, 1, 1], [0, 0, 0])
+        p1 = Particle(1, [0, 0, 0], [0, 0, 0])
+        p2 = Particle(2, [1, 1, 1], [0, 0, 0])
         col = Collision(p1, p2)
         TestCase.assertAlmostEquals(self,
                                     vect.mag(
@@ -18,8 +18,8 @@ class TestCollision(TestCase):
                                     0)
 
     def test_simple_collision(self):
-        p1 = Particle([0, 0, 0], [0.1, 0, 0], 0.1, gravity=[0, 0, 0])
-        p2 = Particle([1, 0, 0], [-0.1, 0, 0], 0.1, gravity=[0, 0, 0])
+        p1 = Particle(1, [0, 0, 0], [0.1, 0, 0], 0.1, get_gravity=lambda dummy: [0, 0, 0])
+        p2 = Particle(2, [1, 0, 0], [-0.1, 0, 0], 0.1, get_gravity=lambda dummy: [0, 0, 0])
         col = Collision(p1, p2, 1e4, restitution=0.8)
         timestep = 0.001
 
@@ -31,11 +31,11 @@ class TestCollision(TestCase):
             p2.iterate(delta_t)
             last_time = time
 
-        particles_to_paraview([p1, p2], "simple_col", "../run/simple_collision/")
+        particles_to_paraview([p1, p2], "simple_col", "../../run/simple_collision/")
 
     def test_bouncing_collision(self):
-        p1 = Particle([0, 0.5, 0], [0, 0, 0], 0.1)
-        p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        p1 = Particle(1, [0, 0.5, 0], [0, 0, 0], 0.1)
+        p2 = Particle(2, [0, 0, 0], [0, 0, 0], 0.1, density=1e99, get_gravity=lambda dummy: [0, 0, 0])
         col = Collision(p1, p2, 1e5, restitution=0.8)
         timestep = 0.0005
 
@@ -47,16 +47,16 @@ class TestCollision(TestCase):
             p2.iterate(delta_t)
             last_time = time
 
-        predicted_overlap = p1.get_mass() * vect.mag(p1.gravity) / col.stiffness
+        predicted_overlap = p1.get_mass() * vect.mag(p1.get_gravity(p1)) / col.stiffness
         print("Predicted overlap = {0}".format(predicted_overlap))
         print("Calculated overlap = {0}".format(col.get_particle_overlap()))
         print("Percentage difference = {0}".format(100 * predicted_overlap / col.get_particle_overlap() - 100))
         TestCase.assertAlmostEqual(self, predicted_overlap, col.get_particle_overlap())
-        particles_to_paraview([p1, p2], "bounce_col", "../run/bounce_collision/")
+        particles_to_paraview([p1, p2], "bounce_col", "../../run/bounce_collision/")
 
     def test_bouncing_collision_timesteps(self):
-        p1 = Particle([0, 0.5, 0], [0, 0, 0], 0.1)
-        p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        p1 = Particle(1, [0, 0.5, 0], [0, 0, 0], 0.1)
+        p2 = Particle(2, [0, 0, 0], [0, 0, 0], 0.1, density=1e99, get_gravity=lambda dummy: [0, 0, 0])
         col = Collision(p1, p2, 1e5, restitution=0.8)
 
         timesteps = np.arange(0.0005, 0.001, 0.00001)
@@ -71,7 +71,7 @@ class TestCollision(TestCase):
                 p2.iterate(delta_t)
                 last_time = time
 
-            predicted_overlap = p1.get_mass() * vect.mag(p1.gravity) / col.stiffness
+            predicted_overlap = p1.get_mass() * vect.mag(p1.get_gravity(p1)) / col.stiffness
             percent_dif = 100 * np.abs(col.get_particle_overlap() / predicted_overlap) - 100
             overlap_errors.append(percent_dif)
 
@@ -88,9 +88,9 @@ class TestCollision(TestCase):
         ps = []
         coeff = 1
         for y in np.arange(0, 5, 0.5):
-            ps.append(Particle([coeff * 0.025, y + 0.5, 0], [0, 0, 0], 0.1))
+            ps.append(Particle(len(ps), [coeff * 0.025, y + 0.5, 0], [0, 0, 0], 0.1))
             coeff *= -1
-        p_fixed = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        p_fixed = Particle(len(ps), [0, 0, 0], [0, 0, 0], 0.1, density=1e99, get_gravity=lambda dummy: [0, 0, 0])
         cols = []
         for p in ps:
             cols.append(Collision(p, p_fixed, 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5))
@@ -111,7 +111,7 @@ class TestCollision(TestCase):
             last_time = time
 
         ps.append(p_fixed)
-        particles_to_paraview(ps, "offset_bounce_col", "../run/offset_bounce_collision/")
+        particles_to_paraview(ps, "offset_bounce_col", "../../run/offset_bounce_collision/")
 
     def test_wall_bouncing(self):
         p = Particle([0, 0.5, 0], [0, 0, 0], 0.1)
@@ -126,12 +126,11 @@ class TestCollision(TestCase):
             p.iterate(delta_t, implicit=True)
             last_time = time
         print("Final offset = {0}".format(p.pos[1]))
-        # TODO: Check offset against calculated value.
-        particles_to_paraview([p], "wall_bounce_col", "../run/wall_bounce_collision/", fps=60)
+        particles_to_paraview([p], "wall_bounce_col", "../../run/wall_bounce_collision/", fps=60)
 
     def test_friction_slide(self):
-        p1 = Particle([0.001, 0.1, 0], [0, 0, 0], 0.1)
-        p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        p1 = Particle(1, [0.001, 0.1, 0], [0, 0, 0], 0.1)
+        p2 = Particle(2, [0, 0, 0], [0, 0, 0], 0.1, density=1e99, get_gravity=lambda dummy: [0, 0, 0])
         col = Collision(p1, p2, 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5)
         timestep = 0.0005
 
@@ -143,11 +142,11 @@ class TestCollision(TestCase):
             p2.iterate(delta_t)
             last_time = time
 
-        particles_to_paraview([p1, p2], "friction_slide", "../run/friction_slide/")
+        particles_to_paraview([p1, p2], "friction_slide", "../../run/friction_slide/")
 
     def test_no_friction_slide(self):
-        p1 = Particle([0.001, 0.1, 0], [0, 0, 0], 0.1)
-        p2 = Particle([0, 0, 0], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        p1 = Particle(1, [0.001, 0.1, 0], [0, 0, 0], 0.1)
+        p2 = Particle(2, [0, 0, 0], [0, 0, 0], 0.1, density=1e99, get_gravity=lambda dummy: [0, 0, 0])
         col = Collision(p1, p2, 1e5, restitution=0.8)
         timestep = 0.0005
 
@@ -159,15 +158,15 @@ class TestCollision(TestCase):
             p2.iterate(delta_t)
             last_time = time
 
-        particles_to_paraview([p1, p2], "no_friction_slide", "../run/no_friction_slide/")
+        particles_to_paraview([p1, p2], "no_friction_slide", "../../run/no_friction_slide/")
 
     def test_friction_comparison(self):
-        fp1 = Particle([0.001, 0.1, -0.25], [0, 0, 0], 0.1)
-        fp2 = Particle([0, 0, -0.25], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        fp1 = Particle(1, [0.001, 0.1, -0.25], [0, 0, 0], 0.1)
+        fp2 = Particle(2, [0, 0, -0.25], [0, 0, 0], 0.1, density=1e99, get_gravity=lambda dummy: [0, 0, 0])
         fcol = Collision(fp1, fp2, 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5)
 
-        nfp1 = Particle([0.001, 0.1, 0.25], [0, 0, 0], 0.1)
-        nfp2 = Particle([0, 0, 0.25], [0, 0, 0], 0.1, density=1e99, gravity=[0, 0, 0])
+        nfp1 = Particle(3, [0.001, 0.1, 0.25], [0, 0, 0], 0.1)
+        nfp2 = Particle(4, [0, 0, 0.25], [0, 0, 0], 0.1, density=1e99, get_gravity=lambda dummy: [0, 0, 0])
         nfcol = Collision(nfp1, nfp2, 1e5, restitution=0.8, friction_coefficient=None, friction_stiffness=None)
         timestep = 0.0005
 
@@ -182,15 +181,15 @@ class TestCollision(TestCase):
             nfp2.iterate(delta_t)
             last_time = time
 
-        particles_to_paraview([fp1, fp2, nfp1, nfp2], "friction_comp", "../run/friction_comparison/")
+        particles_to_paraview([fp1, fp2, nfp1, nfp2], "friction_comp", "../../run/friction_comparison/")
 
     def test_wall_friction_comparison(self):
         wall = AAWall([1, 0, 1], [-1, 0, -1])
 
-        fp = Particle([0, 0.05, -0.25], [1, 0, 0], 0.1)
+        fp = Particle(1, [0, 0.05, -0.25], [1, 0, 0], 0.1)
         fcol = AAWallCollision(fp, wall, 1e5, restitution=0.8, friction_coefficient=0.6, friction_stiffness=1e5)
 
-        nfp = Particle([0.001, 0.05, 0.25], [1, 0, 0], 0.1)
+        nfp = Particle(2, [0.001, 0.05, 0.25], [1, 0, 0], 0.1)
         nfcol = AAWallCollision(nfp, wall, 1e5, restitution=0.8, friction_coefficient=None, friction_stiffness=None)
         timestep = 0.0005
 
@@ -203,10 +202,10 @@ class TestCollision(TestCase):
             nfp.iterate(delta_t)
             last_time = time
 
-        particles_to_paraview([fp, nfp], "wall_friction_comp", "../run/wall_friction_comparison/")
+        particles_to_paraview([fp, nfp], "wall_friction_comp", "../../run/wall_friction_comparison/")
 
     def test_side_wall_collision(self):
-        p = Particle([1, 0, 0], [-1, 0, 0], 0.1, gravity=[0, 0, 0])
+        p = Particle(1, [1, 0, 0], [-1, 0, 0], 0.1, get_gravity=lambda dummy: [0, 0, 0])
         w = AAWall([-0.5, -0.5, -0.5], [-0.5, 0.5, 0.5])
         col = AAWallCollision(p, w)
         timestep = 0.0005
@@ -218,5 +217,4 @@ class TestCollision(TestCase):
             p.iterate(delta_t, implicit=True)
             last_time = time
         print("Final offset = {0}".format(p.pos[1]))
-        # TODO: Check offset against calculated value.
-        particles_to_paraview([p], "side_wall_col", "../run/side_wall_collision/")
+        particles_to_paraview([p], "side_wall_col", "../../run/side_wall_collision/")

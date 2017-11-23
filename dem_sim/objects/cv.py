@@ -5,6 +5,8 @@ import dem_sim.util.vector_utils as vect
 from dem_sim.util.hashing_utils import commutative_cantor
 
 
+# TODO: Add broad phase for wall collisions.
+
 class CVManager:
     cvs = None
     cv_length = None

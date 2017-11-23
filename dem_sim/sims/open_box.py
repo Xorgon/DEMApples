@@ -15,12 +15,12 @@ def simple_open_box():
     for x in np.arange(-0.4, 0.41, 0.2):
         for z in np.arange(-0.4, 0.41, 0.2):
             pos = np.array([x, y, z])
-            particles.append(Particle(pos, -np.array([pos[0], 0, pos[2]]), diameter=0.1))
+            particles.append(Particle(len(particles), pos, -np.array([pos[0], 0, pos[2]]), diameter=0.1))
     y = 0.35
     for x in np.arange(-0.4, 0.41, 0.2):
         for z in np.arange(-0.4, 0.41, 0.2):
             pos = np.array([x, y, z])
-            particles.append(Particle(pos, np.array([pos[0], 0, pos[2]]), diameter=0.1))
+            particles.append(Particle(len(particles), pos, np.array([pos[0], 0, pos[2]]), diameter=0.1))
 
     cols = []
     for p in particles:

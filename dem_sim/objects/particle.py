@@ -5,7 +5,6 @@ import dem_sim.util.vector_utils as vect
 
 class Particle:
     pid = None
-    gravity = None
     pos = None
     next_pos = None
     vel = None
@@ -23,18 +22,12 @@ class Particle:
     dem_forces = None
 
     def __init__(self, pid, position, velocity, diameter=0.1, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None,
-                 gravity=None):
-
-        # To avoid mutable arguments.
-        if gravity is None:
-            gravity = [0, -9.81, 0]
-
+                 get_gravity=None):
         self.pos = np.array(position)
         self.vel = np.array(velocity)
         self.diameter = diameter
         self.density = density
         self.fluid_viscosity = fluid_viscosity
-        self.gravity = np.array(gravity)
 
         self.pid = pid
 
@@ -51,6 +44,13 @@ class Particle:
             print("get_vel_fluid is not a valid function.")
         else:
             self.get_vel_fluid = lambda dummy: [0, 0, 0]
+
+        if callable(get_gravity) and len(get_gravity(self)) == 3:
+            self.get_gravity = get_gravity
+        elif get_gravity is not None:
+            print("get_gravity is not a valid function.")
+        else:
+            self.get_gravity = lambda delta_t: [0, -9.81, 0]
 
     def iterate(self, delta_t, implicit=False):
         self.time += delta_t
@@ -72,12 +72,12 @@ class Particle:
 
     def get_accel(self, delta_t, implicit):
         if not implicit:
-            return np.array(self.get_drag_accel() + self.get_dem_accel() + self.gravity)
+            return np.array(self.get_drag_accel() + self.get_dem_accel() + self.get_gravity(self))
         else:
             return self.get_accel_implicit_drag(delta_t)
 
     def get_accel_implicit_drag(self, delta_t):
-        non_drag_a = self.get_dem_accel() + self.gravity
+        non_drag_a = self.get_dem_accel() + self.get_gravity(self)
         v = self.get_vel_fluid(self)
         return (v - self.vel + self.get_tau() * non_drag_a) / (self.get_tau() + delta_t)
 

@@ -44,7 +44,7 @@ def simple_closed_box():
         last_time = t
         manager.reset()
     bar.finish()
-    particles_to_paraview(particles, "simple_closed_box", "../../run/simple_closed_box/")
+    particles_to_paraview(particles, "simple_closed_box", "../../run/simple_closed_box/", ignore_warnings=True)
 
 
 simple_closed_box()
