@@ -17,7 +17,6 @@ class Particle:
     times = None
     pos_history = None
     vel_history = None
-    # TODO: Manage memory usage e.g. log between steps rather than at the end.
 
     dem_forces = None
 
@@ -114,3 +113,30 @@ class Particle:
         self.vel_history.append(self.vel.copy())
         self.pos_history.append(self.pos.copy())
         self.times.append(self.time)
+
+    def __str__(self):
+        "{0:.5f},{1:.5f},{2:.5f},{3:.5f}\n".format(self.pos[0], self.pos[1],
+                                                   self.pos[2],
+                                                   self.get_speed())
+
+
+class LowMemParticle(Particle):
+    """ Same as Particle but without full history tracking. """
+
+    def __init__(self, pid, position, velocity, diameter=0.1, density=2000, fluid_viscosity=1.93e-5, get_vel_fluid=None,
+                 get_gravity=None):
+        super().__init__(pid, position, velocity, diameter, density, fluid_viscosity, get_vel_fluid, get_gravity)
+        self.times = None
+        self.pos_history = None
+        self.vel_history = None
+
+    def iterate(self, delta_t, implicit=False):
+        self.time += delta_t
+
+        self.iterate_velocity(delta_t, implicit)
+        self.iterate_position(delta_t)
+
+        self.vel = self.next_vel
+        self.pos = self.next_pos
+
+        self.dem_forces.clear()
