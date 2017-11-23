@@ -115,7 +115,7 @@ class Particle:
         self.times.append(self.time)
 
     def __str__(self):
-        "{0:.5f},{1:.5f},{2:.5f},{3:.5f}\n".format(self.pos[0], self.pos[1],
+        return "{0:.5f},{1:.5f},{2:.5f},{3:.5f}\n".format(self.pos[0], self.pos[1],
                                                    self.pos[2],
                                                    self.get_speed())
 
