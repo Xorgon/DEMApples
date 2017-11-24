@@ -165,7 +165,7 @@ class TestParticle(TestCase):
         logger.log(0)
 
         last_time = 0
-        for time in np.arange(0, 5, timestep):
+        for time in np.arange(0, 10, timestep):
             delta_t = time - last_time
             col.calculate(delta_t)
             p1.iterate(delta_t)

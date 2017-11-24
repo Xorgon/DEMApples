@@ -17,7 +17,7 @@ def gravity_shift_closed_box():
     walls = generate_closed_cube_box(1, [0, 0, 0])
 
     def get_gravity(self):
-        return [math.sin(self.time / 2), -math.cos(self.time / 2), 0]
+        return [9.81 * math.sin(self.time), -9.81 * math.cos(self.time), 0]
 
     for y in [-0.18, -0.07, 0.1, 0.21, 0.32, 0.43]:
         for x in np.arange(-0.4, 0.41, 0.2):
