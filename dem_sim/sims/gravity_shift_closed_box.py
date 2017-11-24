@@ -7,8 +7,8 @@ import progressbar
 from dem_sim.generators.box import generate_closed_cube_box
 from dem_sim.objects.collision import AAWallCollision
 from dem_sim.objects.cv import CVManager
-from dem_sim.objects.particle import Particle
-from dem_sim.util.file_io import particles_to_paraview
+from dem_sim.objects.particle import Particle, LowMemParticle
+from dem_sim.util.file_io import particles_to_paraview, Logger
 
 
 def gravity_shift_closed_box():
@@ -24,7 +24,8 @@ def gravity_shift_closed_box():
             for z in np.arange(-0.4, 0.41, 0.2):
                 pos = np.array([x + 0.05 * (rand() - 0.5), y, z + 0.05 * (rand() - 0.5)])
                 particles.append(
-                    Particle(len(particles), pos, np.array([pos[0], 0, pos[2]]), diameter=0.1, get_gravity=get_gravity))
+                    LowMemParticle(len(particles), pos, np.array([pos[0], 0, pos[2]]), diameter=0.1,
+                                   get_gravity=get_gravity))
 
     wall_cols = []
     for p in particles:
@@ -35,21 +36,23 @@ def gravity_shift_closed_box():
     timestep = 0.0005
     last_time = 0
     max_time = 15
+    logger = Logger(particles, "gravity_shift_closed_box", "../../run/gravity_shift_closed_box/",
+                    ignore_warnings=True)
+    logger.log(0)
     bar = progressbar.ProgressBar(redirect_stdout=True, max_value=max_time)
     for t in np.arange(0, max_time, timestep):
         bar.update(t)
-        manager.add_particles(particles)
-        p_cols = manager.get_collisions()
+        manager.add_particles(particles)  # Kernel to set CV particle lists. (Pass over all particles).
+        p_cols = manager.get_collisions()  # Kernel to get collisions from CVs. (Pass over all CVs).
         delta_t = t - last_time
         for col in p_cols + wall_cols:
-            col.calculate(delta_t)
+            col.calculate(delta_t)  # Kernel to calculate all collisions. (Pass over all collisions).
         for p in particles:
-            p.iterate(delta_t, implicit=True)
+            p.iterate(delta_t, implicit=True)  # Kernel to iterate all particles. (Pass over all particles).
         last_time = t
         manager.reset()
+        logger.log(t)
     bar.finish()
-    particles_to_paraview(particles, "gravity_shift_closed_box", "../../run/gravity_shift_closed_box/",
-                          ignore_warnings=True)
 
 
 gravity_shift_closed_box()
