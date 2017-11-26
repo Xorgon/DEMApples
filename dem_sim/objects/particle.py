@@ -51,7 +51,7 @@ class Particle:
         else:
             self.get_gravity = lambda delta_t: [0, -9.81, 0]
 
-    def iterate(self, delta_t, implicit=False):
+    def iterate(self, delta_t, implicit=True):
         self.time += delta_t
 
         self.iterate_velocity(delta_t, implicit)
