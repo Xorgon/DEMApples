@@ -17,7 +17,8 @@ def gravity_shift_closed_box():
     walls = generate_closed_cube_box(1, [0, 0, 0])
 
     def get_gravity(self):
-        return [9.81 * math.sin(self.time), -9.81 * math.cos(self.time), 0]
+        time_fact = 0.25 * self.time * self.time
+        return [9.81 * math.sin(time_fact), -9.81 * math.cos(time_fact), 0]
 
     for y in [-0.18, -0.07, 0.1, 0.21, 0.32, 0.43]:
         for x in np.arange(-0.4, 0.41, 0.2):
@@ -35,8 +36,8 @@ def gravity_shift_closed_box():
 
     timestep = 0.0005
     last_time = 0
-    max_time = 15
-    logger = Logger(particles, "gravity_shift_closed_box", "../../run/gravity_shift_closed_box/",
+    max_time = 30
+    logger = Logger(particles, "accel_gravity_shift_closed_box", "../../run/accel_gravity_shift_closed_box/",
                     ignore_warnings=True)
     logger.log(0)
     bar = progressbar.ProgressBar(redirect_stdout=True, max_value=max_time)
