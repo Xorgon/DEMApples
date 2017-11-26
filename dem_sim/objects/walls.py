@@ -22,4 +22,5 @@ class AAWall:
         else:
             raise ParameterException("Points not in the same axis-aligned plane.")
 
+# TODO: Add non-axis-aligned wall.
 # TODO: Add periodic wall.
