@@ -108,6 +108,9 @@ class Particle:
     def get_mass(self):
         return self.density * math.pi * self.diameter ** 3 / 6
 
+    def get_kinetic_energy(self):
+        return 0.5 * self.get_mass() + self.get_speed() ** 2
+
     def record_state(self):
         """ Records current position, velocity, and time. """
         self.vel_history.append(self.vel.copy())
@@ -115,9 +118,7 @@ class Particle:
         self.times.append(self.time)
 
     def __str__(self):
-        return "{0:.5f},{1:.5f},{2:.5f},{3:.5f}\n".format(self.pos[0], self.pos[1],
-                                                   self.pos[2],
-                                                   self.get_speed())
+        return "{0:.5f},{1:.5f},{2:.5f},{3:.5f}\n".format(self.pos[0], self.pos[1], self.pos[2], self.get_speed())
 
 
 class LowMemParticle(Particle):

@@ -5,7 +5,6 @@ import numpy as np
 import math
 
 
-# TODO: Add total energy checks to ensure collisions don't end with more energy than they started with.
 # TODO: Add cohesion/adhesion.
 
 class Collision:
@@ -17,9 +16,7 @@ class Collision:
     friction_coefficient = None
     friction_stiffness = None
 
-    # pos_history = []
-    vel_history = []
-    time_history = []
+    last_kinetic_energy = None
 
     def __init__(self, particle1, particle2, stiffness=1e5, damping_coefficient=None, restitution=0.8,
                  friction_coefficient=0.6, friction_stiffness=1e5):
@@ -82,6 +79,7 @@ class Collision:
         return self.p1.diameter / 2 + self.p2.diameter / 2 - self.get_particle_centre_separation()
 
     def calculate(self, delta_t):
+        self.last_kinetic_energy = self.p1.get_kinetic_energy() + self.p2.get_kinetic_energy()
         if self.get_particle_overlap() > 0:
             force = self.calculate_collision_normal_force()
             self.p1.dem_forces.append(-force)
@@ -92,6 +90,14 @@ class Collision:
                 self.p1.dem_forces.append(-friction)
                 self.p2.dem_forces.append(friction)
 
+    def check_total_kinetic_energy(self):
+        """ Checks the current kinetic energy of the collision against the last kinetic energy. """
+        # TODO: May break for multi-particle collision situations or moving flows. Implement within calculate?
+        correct = self.p1.get_kinetic_energy() + self.p2.get_kinetic_energy < self.last_kinetic_energy
+        if not correct:
+            print("Warning: Kinetic energy greater than last kinetic energy.")
+        return correct
+
 
 class AAWallCollision:
     """ Collision object for particle-axis-aligned wall collisions. """
@@ -101,10 +107,6 @@ class AAWallCollision:
     damping_coefficient = None
     friction_coefficient = None
     friction_stiffness = None
-
-    # pos_history = []
-    vel_history = []
-    time_history = []
 
     def __init__(self, particle, wall, stiffness=1e5, damping_coefficient=None, restitution=0.8,
                  friction_coefficient=0.6,
