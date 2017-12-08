@@ -59,10 +59,10 @@ class TestCollision(TestCase):
         p2 = Particle(2, [0, 0, 0], [0, 0, 0], 0.1, density=1e99, get_gravity=lambda dummy: [0, 0, 0])
         col = Collision(p1, p2, 1e5, restitution=0.8)
 
+        tau = p1.get_tau()
         timesteps = np.arange(0.0005, 0.001, 0.00001)
         overlap_errors = []
         for timestep in timesteps:
-            print(timestep)
             last_time = 0
             for time in np.arange(0, 10, timestep):
                 delta_t = time - last_time
@@ -75,6 +75,8 @@ class TestCollision(TestCase):
             percent_dif = 100 * np.abs(col.get_particle_overlap() / predicted_overlap) - 100
             overlap_errors.append(percent_dif)
 
+        for i in range(len(timesteps)):
+            timesteps[i] /= tau
         fig = plt.figure()
         fig.patch.set_facecolor('white')
         ax = fig.add_subplot(111)
