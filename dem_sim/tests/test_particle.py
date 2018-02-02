@@ -175,8 +175,9 @@ class TestParticle(TestCase):
             analytic = []
             last_time = 0
             data = []
+            duration = 40
 
-            for time in np.arange(0, 40, timestep):
+            for time in np.arange(0, duration, timestep):
                 p_explicit.iterate(time - last_time, implicit=False)
                 p_implicit.iterate(time - last_time, implicit=True)
                 times.append(time)
@@ -199,15 +200,17 @@ class TestParticle(TestCase):
             # plt.legend(plots, ['Explicit', 'Implicit', 'Analytic'], loc=4)
             # plt.show()
 
-            explicit_diff_sum = 0
-            implicit_diff_sum = 0
-            length = len(data[0][0])
-            for i in range(1, length):  # Start at 1 to avoid division by zero at the initial conditions.
-                explicit_diff_sum += (data[0][1][i] - data[2][1][i]) / data[2][1][i]
-                implicit_diff_sum += (data[1][1][i] - data[2][1][i]) / data[2][1][i]
-            explicit_avg = 100 * np.abs(explicit_diff_sum / length)
+            explicit_dif_sum = 0
+            implicit_dif_sum = 0
+
+            for i in range(1, len(times)):  # Start at 1 to avoid division by zero at the initial conditions.
+                explicit_dif = (explicit[i] - analytic[i]) / analytic[i]
+                explicit_dif_sum += timestep * explicit_dif
+                implicit_dif = (implicit[i] - analytic[i]) / analytic[i]
+                implicit_dif_sum += timestep * implicit_dif
+            explicit_avg = 100 * np.abs(explicit_dif_sum / duration)
             # print("Explicit average percentage difference = {0}".format(explicit_avg))
-            implicit_avg = 100 * np.abs(implicit_diff_sum / length)
+            implicit_avg = 100 * np.abs(implicit_dif_sum / duration)
             # print("Implicit average percentage difference = {0}".format(implicit_avg))
             explicit_avgs.append(explicit_avg)
             implicit_avgs.append(implicit_avg)
