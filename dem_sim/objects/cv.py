@@ -14,6 +14,7 @@ class CVManager:
     max_bound = None
     cvs_per_edge = None
 
+    # TODO: Allow collision properties to be specified.
     def __init__(self, cvs_per_edge, max_bound=0.5, min_bound=-0.5):
         self.initialize_cvs(cvs_per_edge)
         self.cv_length = (max_bound - min_bound) / cvs_per_edge
