@@ -80,10 +80,61 @@ class TestCollision(TestCase):
         fig = plt.figure()
         fig.patch.set_facecolor('white')
         ax = fig.add_subplot(111)
-        ax.set_title('Percentage error against timestep')
+        # ax.set_title('Percentage error against timestep')
         ax.set_ylabel('Percentage error (%)')
         ax.set_xlabel('Timestep (seconds)')
         ax.plot(timesteps, overlap_errors)
+        plt.show()
+
+    def test_collision_timestep_limits(self):
+        stiffnesses = np.arange(1e4, 1e6, 5e4)
+        stable_to = []
+
+        def get_percent_dif(particle1, particle2, delta_t):
+            print("    Testing " + str(delta_t))
+            last_time = 0
+            for time in np.arange(0, 10, delta_t):
+                delta_t = time - last_time
+                col.calculate(delta_t)
+                particle1.iterate(delta_t)
+                particle2.iterate(delta_t)
+                last_time = time
+            predicted_overlap = particle1.get_mass() * vect.mag(particle1.get_gravity(particle1)) / col.stiffness
+            percent_dif = 100 * np.abs(col.get_particle_overlap() / predicted_overlap) - 100
+            return percent_dif
+
+        for stiffness in stiffnesses:
+            print("Stiffness = " + str(stiffness))
+            p1 = Particle(1, [0, 0.5, 0], [0, 0, 0], 0.1)
+            p2 = Particle(2, [0, 0, 0], [0, 0, 0], 0.1, density=1e99, get_gravity=lambda dummy: [0, 0, 0])
+            col = Collision(p1, p2, stiffness, restitution=0.8)
+
+            timestep = 0.001
+            finished = False
+            last_valid = None
+            while not finished:
+                if get_percent_dif(p1, p2, timestep) < 1:
+                    last_valid = timestep
+                    timestep += 0.00005
+                elif last_valid is None:
+                    if timestep - 0.00005 > 0:
+                        timestep -= 0.00005
+                    else:
+                        timestep /= 2
+                else:
+                    stable_to.append(last_valid)
+                    finished = True
+            print("Timestep = " + str(timestep))
+
+        print(stiffnesses)
+        print(stable_to)
+        fig = plt.figure()
+        fig.patch.set_facecolor('white')
+        ax = fig.add_subplot(111)
+        # ax.set_title('Percentage error against timestep')
+        # ax.set_ylabel('Percentage error (%)')
+        # ax.set_xlabel('Timestep (seconds)')
+        ax.plot(stiffnesses, stable_to)
         plt.show()
 
     def test_offset_bouncing_collision(self):
