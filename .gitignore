@@ -57,3 +57,4 @@ __pycache__*
 
 # Run files
 run/*
+dem_sim/verification/*/data/*

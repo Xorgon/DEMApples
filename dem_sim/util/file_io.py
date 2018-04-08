@@ -50,6 +50,14 @@ def particles_to_binary(particles, filename_root, path="", ignore_warnings=False
                                              num_utils.float_to_bin(p.get_speed_at_index(i))))
 
 
+def particles_to_file(particles, filename_root, path, time):
+    file = open(path + filename_root + "_" + str(int(round(time * 1e6))) + ".txt", 'w')
+    for p in particles:
+        file.write("{0:.5f},{1:.5f},{2:.5f},{3:.5f},{4:.5f},{5:.5f}\n".format(p.pos[0], p.pos[1], p.pos[2],
+                                                                              p.vel[0], p.vel[1], p.vel[2]))
+    file.close()
+
+
 def particles_to_paraview(particles, filename_root, path="", ignore_warnings=False, fps=60):
     if os.path.exists(path) and not ignore_warnings:
         ans = input(path + " already exists. Remove and continue? [y/N]\n")
