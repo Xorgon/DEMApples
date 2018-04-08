@@ -248,8 +248,8 @@ class TestCollision(TestCase):
 
         last_time = 0
         for time in np.arange(0, 10, timestep):
-            fcol.calculate(time)
             delta_t = time - last_time
+            fcol.calculate(delta_t)
             nfcol.calculate(delta_t)
             fp.iterate(delta_t)
             nfp.iterate(delta_t)
