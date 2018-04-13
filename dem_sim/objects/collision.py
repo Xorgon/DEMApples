@@ -60,7 +60,8 @@ class Collision:
 
     def get_tangential_displacement(self, delta_t):
         # TODO: Investigate more accurate methods of numerically integrating this.
-        return vect.mag((self.get_relative_velocity() - self.get_normal_velocity()) * delta_t)
+        return vect.mag((self.get_relative_velocity() - self.get_normal_velocity()) * math.pi * math.sqrt(
+            self.get_reduced_particle_mass() / self.stiffness))
 
     def calculate_tangential_friction_force(self, normal_force, delta_t):
         f_dyn = - self.friction_coefficient * vect.mag(normal_force) * self.get_collision_tangent()
@@ -142,7 +143,7 @@ class AAWallCollision:
 
     def get_tangential_displacement(self, vel, delta_t):
         # TODO: Investigate more accurate methods of numerically integrating this.
-        return vect.mag(vel * delta_t)
+        return vect.mag(vel * math.pi * math.sqrt(self.p.get_mass() / self.stiffness))
 
     def get_tangential_velocity(self):
         return self.p.vel - self.get_normal_velocity()
