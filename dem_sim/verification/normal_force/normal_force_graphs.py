@@ -91,6 +91,7 @@ def plot_pos_and_vel():
 
     # Plot Data
     fig = plt.figure(figsize=(8, 10))
+    plt.rc('axes', labelsize=15)
     fig.patch.set_facecolor('white')
     ax1 = fig.add_subplot(211)
     ax1_lines = []

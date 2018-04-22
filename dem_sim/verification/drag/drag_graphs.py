@@ -83,6 +83,7 @@ def plot_pos_and_vel():
 
     # Plot Data
     fig = plt.figure(figsize=(8, 10))
+    plt.rc('axes', labelsize=15)
     fig.patch.set_facecolor('white')
     ax1 = fig.add_subplot(211)
     ax1_lines = []
@@ -106,7 +107,7 @@ def plot_pos_and_vel():
         timestep_label = "$\\tau / " + str(increments[i]) + "$"
         line, = ax2.plot(timestep_data[:, 0], timestep_data[:, 2], '--', label=timestep_label)
         ax2_lines.append(line)
-    ax2.set_ylabel('$u / v$')
+    ax2.set_ylabel('$u / u_f$')
     ax2.set_xlabel('$t / \\tau$')
     ax2.legend(handles=ax2_lines, loc=1)
 
