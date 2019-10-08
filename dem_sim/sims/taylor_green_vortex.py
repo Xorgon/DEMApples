@@ -44,7 +44,13 @@ def taylor_green_vortex_sim(number_of_particles=50):
         y_start = (2 * random() - 1) * math.pi
         z_start = (2 * random() - 1) * math.pi
 
-        p = Particle([x_start, y_start, z_start], [0, 0, 0], gravity=[0, -0.001, 0], get_vel_fluid=get_vel_fluid)
+        pos = [x_start, y_start, z_start]
+        p = Particle(len(particles), 
+                     pos, 
+                     [0, 0, 0], 
+                     diameter=0.001, 
+                     get_vel_fluid=get_vel_fluid, 
+                     get_gravity=lambda _: [0, 0, 0])
 
         particles.append(p)
 
