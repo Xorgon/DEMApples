@@ -48,6 +48,9 @@ manifest.mf
 *.iws
 .idea*
 
+# Spyder
+.spyproject/*
+
 # Linux temp files
 *~
 
@@ -58,3 +61,4 @@ __pycache__*
 # Run files
 run/*
 dem_sim/verification/*/data/*
+dem_sim/test_run/*
