@@ -12,6 +12,7 @@ def trace_animation(particles, trail_length=None, speed=1, xmin=None, xmax=None,
     :param particles: an array of Particle objects.
     :param trail_length: the number of steps to include in the particle trail.
     :param speed: a mutliplier to determine the speed of motion.
+    :return line_ani: animation object that _must_ be stored for the animations to work.
     """
     fig = plt.figure()
     fig.patch.set_facecolor('white')
@@ -46,8 +47,9 @@ def trace_animation(particles, trail_length=None, speed=1, xmin=None, xmax=None,
             line.set_3d_properties(p_hist_trans[1, i:num])
 
     line_ani = animation.FuncAnimation(fig, update_lines, math.ceil(len(particles[0].pos_history) / speed),
-                                       fargs=(particles, lines), interval=1, blit=False)
+                                       fargs=(particles, lines), interval=1, blit=False, repeat=True)
     plt.show()
+    return line_ani
 
 
 def trace_plot(particles):
