@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
 import math
 
@@ -16,7 +15,7 @@ def trace_animation(particles, trail_length=None, speed=1, xmin=None, xmax=None,
     """
     fig = plt.figure()
     fig.patch.set_facecolor('white')
-    ax = p3.Axes3D(fig)
+    ax = fig.add_subplot(111, projection='3d')
 
     if xmin is not None and xmax is not None:
         ax.set_xlim(xmin, xmax)
@@ -55,7 +54,7 @@ def trace_animation(particles, trail_length=None, speed=1, xmin=None, xmax=None,
 def trace_plot(particles):
     fig = plt.figure()
     fig.patch.set_facecolor('white')
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(111, projection='3d')
 
     for particle in particles:
         particle.pos_history = np.array(particle.pos_history)
