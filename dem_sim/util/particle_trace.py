@@ -54,8 +54,8 @@ def trace_animation(particles, trail_length=None, speed=1, xmin=None, xmax=None,
 def trace_plot(particles):
     fig = plt.figure()
     fig.patch.set_facecolor('white')
-    ax = ax = fig.add_subplot(111, projection='3d')
-  
+    ax = fig.add_subplot(111, projection='3d')
+
     for particle in particles:
         particle.pos_history = np.array(particle.pos_history)
         # y and z axis switched so that particle y coordinates are on the vertical axis.
