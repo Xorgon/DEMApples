@@ -16,7 +16,7 @@ def trace_animation(particles, trail_length=None, speed=1, xmin=None, xmax=None,
     """
     fig = plt.figure()
     fig.patch.set_facecolor('white')
-    ax = p3.Axes3D(fig)
+    ax = fig.add_subplot(111, projection='3d')
 
     if xmin is not None and xmax is not None:
         ax.set_xlim(xmin, xmax)
